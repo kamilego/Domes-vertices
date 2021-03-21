@@ -1,24 +1,24 @@
 import pandas as pd
 import math
 import numpy as np
-#import xlrd
+import xlsxwriter
 
 # to clear all variables
 # import sys
 # sys.modules[__name__].__dict__.clear()
 
 #_____________________________DANE DO WPROWADZENIA_____________________________
-promien = float(1)              #metry
-strzalka = float(1)             #metry
-stal = int(235)                 #MPa
-s = int(2)                      #rodzaj przekroju
-przekroj1 = str("HEB 600")      #przekrój poprzeczny nr1 - mm
-przekroj2 = str("d 200 t 20")   #przekrój poprzeczny nr2 - mm
-sila = str(1000)                #siła kN
+promien = float(3)              # metry
+strzalka = float(3)             # metry
+stal = int(235)                 # MPa
+s = int(2)                      # rodzaj przekroju
+przekroj1 = str("HEB 600")      # przekrój poprzeczny nr1 - mm
+przekroj2 = str("d 200 t 20")   # przekrój poprzeczny nr2 - mm
+sila = str(1000)                # siła kN
 #_____________________________DANE DO WPROWADZENIA_____________________________
 
 
-def takeThird(elem):
+def takethird(elem):
     return elem[2]
 
 def clockwiseangle_and_distance(point):
@@ -31,7 +31,7 @@ def clockwiseangle_and_distance(point):
         return -math.pi, 0
     # Normalize vector: v/||v||
     normalized = [vector[0]/lenvector, vector[1]/lenvector]
-    dotprod  = normalized[0]*refvec[0] + normalized[1]*refvec[1]     # x1*x2 + y1*y2
+    dotprod = normalized[0]*refvec[0] + normalized[1]*refvec[1]     # x1*x2 + y1*y2
     diffprod = refvec[1]*normalized[0] - refvec[0]*normalized[1]     # x1*y2 - y1*x2
     angle = math.atan2(diffprod, dotprod)
     # Negative angles represent counter-clockwise angles so we need to subtract them
@@ -43,14 +43,19 @@ def clockwiseangle_and_distance(point):
     return angle, lenvector
 
 # załadowanie pliku excel z punktami z cada - X,Y,Z
-df = pd.read_excel (r"D:\Programy\z.studi\ROK 5\magister\wierzchołki.xlsx")
-df_2 = pd.read_excel (r"D:\Programy\z.studi\ROK 5\magister\kopuła_wierzchołk2.xls.xlsx")
+df = pd.read_excel (r"D:\Programy\z.studi\ROK 6\magister\wierzchołki.xlsx")
+df_2 = pd.read_excel (r"D:\Programy\z.studi\ROK 6\magister\asd.xlsx")
 
 # stworzenie listy i transpozycja jej
-mylist = [df['Position X'].tolist(),df['Position Y'].tolist(),df['Position Z'].tolist()]
+mylist = [df['Position X'].tolist(), df['Position Y'].tolist(), df['Position Z'].tolist()]
 mylist = list(map(list, zip(*mylist)))
-mylist.sort(key=takeThird)
+mylist.sort(key=takethird)
 mylist = np.array(mylist)
+
+mylist_2 = [df_2['Position X'].tolist(), df_2['Position Y'].tolist(), df_2['Position Z'].tolist()]
+mylist_2 = list(map(list, zip(*mylist_2)))
+mylist_2.sort(key=takethird)
+mylist_2 = np.array(mylist_2)
 
 # założenie współrzędnych wektora
 origin = [0, 0]
@@ -68,14 +73,26 @@ list_7 = np.array(sorted(mylist[120:140], key=clockwiseangle_and_distance))
 list_8 = np.array(sorted(mylist[140:160], key=clockwiseangle_and_distance))
 list_9 = np.array(sorted(mylist[160:161]))
 
+list2_1 = np.array(sorted(mylist_2[0:20], key=clockwiseangle_and_distance))
+list2_2 = np.array(sorted(mylist_2[20:40], key=clockwiseangle_and_distance))
+list2_3 = np.array(sorted(mylist_2[40:60], key=clockwiseangle_and_distance))
+list2_4 = np.array(sorted(mylist_2[60:80], key=clockwiseangle_and_distance))
+list2_5 = np.array(sorted(mylist_2[80:100], key=clockwiseangle_and_distance))
+list2_6 = np.array(sorted(mylist_2[100:120], key=clockwiseangle_and_distance))
+list2_7 = np.array(sorted(mylist_2[120:140], key=clockwiseangle_and_distance))
+list2_8 = np.array(sorted(mylist_2[140:160], key=clockwiseangle_and_distance))
+list2_9 = np.array(sorted(mylist_2[160:161]))
+
+
 # ewentualna zmiana geometrii kopuły
 r_scale= promien/float(1)
 h_scale = strzalka/float(1)
 x2 = np.array([r_scale, r_scale, -1 * h_scale])
 
-opus = [list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9]
+opus = [list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9, list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9]
 for n in opus:
     np.dot(n,x2)
+
 list_1 = np.multiply(list_1, x2)
 list_2 = np.multiply(list_2, x2)
 list_3 = np.multiply(list_3, x2)
@@ -85,6 +102,15 @@ list_6 = np.multiply(list_6, x2)
 list_7 = np.multiply(list_7, x2)
 list_8 = np.multiply(list_8, x2)
 list_9 = np.multiply(list_9, x2)
+list2_1 = np.multiply(list2_1, x2)
+list2_2 = np.multiply(list2_2, x2)
+list2_3 = np.multiply(list2_3, x2)
+list2_4 = np.multiply(list2_4, x2)
+list2_5 = np.multiply(list2_5, x2)
+list2_6 = np.multiply(list2_6, x2)
+list2_7 = np.multiply(list2_7, x2)
+list2_8 = np.multiply(list2_8, x2)
+list2_9 = np.multiply(list2_9, x2)
 
 # stworzenie dataframe do excela
 dfa = pd.DataFrame(list_a)
@@ -97,6 +123,15 @@ df6 = pd.DataFrame(list_6,index=[str(i).zfill(1) for i in range(101,121)],column
 df7 = pd.DataFrame(list_7,index=[str(i).zfill(1) for i in range(121,141)],columns=['X','Y','Z'])
 df8 = pd.DataFrame(list_8,index=[str(i).zfill(1) for i in range(141,161)],columns=['X','Y','Z'])
 df9 = pd.DataFrame(list_9,index=['161'],columns=['X','Y','Z'])
+df11 = pd.DataFrame(list2_1,index=[str(i).zfill(1) for i in range(1,21)],columns=['X','Y','Z'])
+df22 = pd.DataFrame(list2_2,index=[str(i).zfill(1) for i in range(21,41)],columns=['X','Y','Z'])
+df33 = pd.DataFrame(list2_3,index=[str(i).zfill(1) for i in range(41,61)],columns=['X','Y','Z'])
+df44 = pd.DataFrame(list2_4,index=[str(i).zfill(1) for i in range(61,81)],columns=['X','Y','Z'])
+df55 = pd.DataFrame(list2_5,index=[str(i).zfill(1) for i in range(81,101)],columns=['X','Y','Z'])
+df66 = pd.DataFrame(list2_6,index=[str(i).zfill(1) for i in range(101,121)],columns=['X','Y','Z'])
+df77 = pd.DataFrame(list2_7,index=[str(i).zfill(1) for i in range(121,141)],columns=['X','Y','Z'])
+df88 = pd.DataFrame(list2_8,index=[str(i).zfill(1) for i in range(141,161)],columns=['X','Y','Z'])
+df99 = pd.DataFrame(list2_9,index=['161'],columns=['X','Y','Z'])
 
 # Create a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter('wierzcholki.xlsx', engine='xlsxwriter')
@@ -105,8 +140,12 @@ writer = pd.ExcelWriter('wierzcholki.xlsx', engine='xlsxwriter')
 dfa.to_excel(writer, sheet_name="CAŁOŚĆ")
 
 dfy = [df1, df2, df3, df4, df5, df6, df7, df8, df9]
+dfy2 = [df11, df22, df33, df44, df55, df66, df77, df88, df99]
 for h in dfy:
-    h.to_excel(writer, sheet_name="wysokość " + str(h.iloc[0]['Z'] * -1))
+    h.to_excel(writer, sheet_name="wysokość " + str(np.around(h.iloc[0]['Z'] * -1, 3)))
+
+for elem in range(len(dfy)):
+    dfy2[elem].to_excel(writer, sheet_name="wysokość " + str(np.around(dfy[elem].iloc[0]['Z'] * -1, 3)), startrow=21, startcol=0)
 
 workbook1 = writer.book
 workbook2 = writer.book
@@ -119,15 +158,15 @@ workbook8 = writer.book
 workbook9 = writer.book
 
 worksheet0 = writer.sheets["CAŁOŚĆ"]
-worksheet1 = writer.sheets["wysokość " +str(df1.iloc[0]['Z']*-1)]
-worksheet2 = writer.sheets["wysokość " +str(df2.iloc[0]['Z']*-1)]
-worksheet3 = writer.sheets["wysokość " +str(df3.iloc[0]['Z']*-1)]
-worksheet4 = writer.sheets["wysokość " +str(df4.iloc[0]['Z']*-1)]
-worksheet5 = writer.sheets["wysokość " +str(df5.iloc[0]['Z']*-1)]
-worksheet6 = writer.sheets["wysokość " +str(df6.iloc[0]['Z']*-1)]
-worksheet7 = writer.sheets["wysokość " +str(df7.iloc[0]['Z']*-1)]
-worksheet8 = writer.sheets["wysokość " +str(df8.iloc[0]['Z']*-1)]
-worksheet9 = writer.sheets["wysokość " +str(df9.iloc[0]['Z']*-1)]
+worksheet1 = writer.sheets["wysokość " +str(np.around(df1.iloc[0]['Z']*-1, 3))]
+worksheet2 = writer.sheets["wysokość " +str(np.around(df2.iloc[0]['Z']*-1, 3))]
+worksheet3 = writer.sheets["wysokość " +str(np.around(df3.iloc[0]['Z']*-1, 3))]
+worksheet4 = writer.sheets["wysokość " +str(np.around(df4.iloc[0]['Z']*-1, 3))]
+worksheet5 = writer.sheets["wysokość " +str(np.around(df5.iloc[0]['Z']*-1, 3))]
+worksheet6 = writer.sheets["wysokość " +str(np.around(df6.iloc[0]['Z']*-1, 3))]
+worksheet7 = writer.sheets["wysokość " +str(np.around(df7.iloc[0]['Z']*-1, 3))]
+worksheet8 = writer.sheets["wysokość " +str(np.around(df8.iloc[0]['Z']*-1, 3))]
+worksheet9 = writer.sheets["wysokość " +str(np.around(df9.iloc[0]['Z']*-1, 3))]
 
 workbooki = [workbook1,workbook2,workbook3,workbook4,workbook5,workbook6,workbook7,workbook8,workbook9]
 for g in workbooki:
@@ -183,8 +222,8 @@ for i in working:
         for b in range(1, 21):
             i.write(b, 5,str("=A")+ str(b + 1) + str("&\" \"&B") + str(b + 1) + str("&\" \"&C") + str(b + 1) + str("&\" \"&D") + str(b + 1) + str("&\" fix ppmm\""))
 
-
-worksheet0.set_column('D:D', 70)
+worksheet0.set_column('A:A', 70)
+worksheet0.set_column('B:B', 70)
 worksheet0.set_column('E:E', 70)
 worksheet0.set_column('G:G', 25)
 worksheet0.set_column('K:K', 25)
@@ -202,8 +241,8 @@ for t in range (2,22):
     worksheet0.write(t, 47, str("='")+str("wysokość ") +str(df8.iloc[0]['Z']*-1)+ str("'!A") + str(t))
 worksheet0.write(2, 48, str("='")+str("wysokość ") +str(df9.iloc[0]['Z']*-1)+ str("'!A") + str(2))
 
-worksheet0.write(0, 3, str("Kopuła Żebrowa"))
-worksheet0.write(0, 4, str("Kopuła Schwedlera"))
+worksheet0.write(0, 0, str("Kopuła Żebrowa"))
+worksheet0.write(0, 1, str("Kopuła Schwedlera"))
 worksheet0.write(0, 6, str("współrzędne wierzchołków"))
 worksheet0.write(0, 10, str("połączenie poziome"))
 worksheet0.write(0, 13, str("połączenie pionowe"))
@@ -263,9 +302,9 @@ for t in range (2,162):
         worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AT") + str(t - 99) + str("&\" npe \"&AU") + str(t - 118) + str("&\" sno ") + str(s) + str("\""))
     if t == 141:
         worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AU") + str(t - 119) + str("&\" npe \"&AV") + str(t - 138) + str("&\" sno ") + str(s) + str("\""))
-worksheet0.write(162, 6, str("='")+str("wysokość ") +str(df9.iloc[0]['Z']*-1)+ str("'!F") + str(2))
+worksheet0.write(162, 6, str("='")+str("wysokość ") +str(df9.iloc[0]['Z']*-1) + str("'!F") + str(2))
 
-for t in range (3,5):
+for t in range (0,2):
     worksheet0.write(1, t, "+prog aqua urs:1")
     worksheet0.write(2, t, "head przekroje+materialy")
     worksheet0.write(3, t, "echo full")
@@ -295,8 +334,6 @@ for t in range (3,5):
     if t ==4:
         for z in range (360+160,360+160+140):
             worksheet0.write(z, t, str("=P") + str(z - 517))
-
-
     worksheet0.write(700, t, str("end"))
     worksheet0.write(701, t, "+prog sofiload urs:4")
     worksheet0.write(702, t, "head obciazenia")
@@ -313,12 +350,6 @@ for t in range (3,5):
     worksheet0.write(715, t, "lc 4 dlz 1.35 titl suma")
     worksheet0.write(716, t, "lcc 2 fact 1.5")
     worksheet0.write(717, t, "end")
-
-
-
-
-
-
 
 # zapisz.
 writer.save()
