@@ -10,3 +10,6 @@ Using python I have created script that imports vertices from xls file, rotates 
 User can also decide about domes dimentions like height, radius because default dimentions are 1.0m. Also material, profile section and value of force can be set too.  
 The output program is SOFiSTiK Teddy which is script method to create constructions.  
 Python creates new excel with prepared three teddy scripts which are ready to be copy and paste to odb file (default teddy extension file).
+
+The biggest adventage? You can create certain dome with specific height and radius. It saves a lot of time.  
+In my opinion script is more stable than other FEM programs like Autodesk ROBOT.  
