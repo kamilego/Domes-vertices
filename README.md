@@ -1,2 +1,12 @@
 # Domes-vertices
-Script that generates domes vertices with set radius and height
+Script that generates domes vertices with set radius and height.  
+Used library pandas, math, numpy, xlsxwriter  
+Used draft program AutoCAD 2D, Excel and SOFiSTiK Teddy.  
+
+This is a big part of my masters thisis where I had to compare domes including their forces and displacements under the influence of external force
+First thing is to generate vertices in AutoCAD. I set units as meters and wanted to create vertices for domes which height and radius equals 1.0 meter. It is like a half of sphere R = 1.0m.  
+In AutoCAD due dataextraction command I exported only vertices to xls file.
+Using python I have created script that imports vertices from xls file, rotates them clockwise. 
+User can also decide about domes dimentions like height, radius because default dimentions are 1.0m. Also material, profile section and value of force can be set too.  
+The output program is SOFiSTiK Teddy which is script method to create constructions.  
+Python creates new excel with prepared three teddy scripts which are ready to be copy and paste to odb file (default teddy extension file).
