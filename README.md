@@ -13,3 +13,6 @@ Python creates new excel with prepared three teddy scripts which are ready to be
 
 The biggest adventage? You can create certain dome with specific height and radius. It saves a lot of time.  
 In my opinion script is more stable than other FEM programs like Autodesk ROBOT.  
+
+# To use sript
+Download script and xlsx files and paste to script excel paths
