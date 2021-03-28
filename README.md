@@ -2,6 +2,7 @@
 Script that generates domes vertices with set radius and height.  
 Used library pandas, math, numpy, xlsxwriter  
 Used draft program AutoCAD 2D, Excel and SOFiSTiK Teddy.  
+I was working on it since October 2020. Have put some changes during the time.   
 
 This is a big part of my masters thisis where I had to compare domes including their forces and displacements under the influence of external force
 First thing is to generate vertices in AutoCAD. I set units as meters and wanted to create vertices for domes which height and radius equals 1.0 meter. It is like a half of sphere R = 1.0m.  
