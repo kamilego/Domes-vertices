@@ -2,20 +2,21 @@ import pandas as pd
 import math
 import numpy as np
 import xlsxwriter
+import pyperclip
 
 # to clear all variables
 # import sys
 # sys.modules[__name__].__dict__.clear()
 
-#_____________________________DANE DO WPROWADZENIA_____________________________
-promien = float(8)              # metry
-strzalka = float(6)             # metry
-stal = int(235)                 # MPa
-s = int(2)                      # rodzaj przekroju
-przekroj1 = str("HEB 600")      # przekrój poprzeczny nr1 - mm
-przekroj2 = str("d 20 t 2")   # przekrój poprzeczny nr2 - mm
-sila = str(1000)                # siła kN
-#_____________________________DANE DO WPROWADZENIA_____________________________
+# _____________________________TO BE SET BY USER_________________________________
+dome_radius = float(50)          # metry
+dome_height = float(30)           # metry
+steel = int(235)                 # MPa
+s = int(2)                       # rodzaj przekroju
+profile_1 = str("HEB 600")       # przekrój poprzeczny nr1 - mm
+profile_2 = str("d 160 t 0")      # przekrój poprzeczny nr2 - mm
+force = str(1000)                # siła kN
+# _____________________________TO BE SET BY USER END_____________________________
 
 
 def takethird(elem):
@@ -85,8 +86,8 @@ list2_9 = np.array(sorted(mylist_2[160:161]))
 
 
 # ewentualna zmiana geometrii kopuły
-r_scale = promien/float(1)
-h_scale = strzalka/float(1)
+r_scale = dome_radius / float(1)
+h_scale = dome_height / float(1)
 x2 = np.array([r_scale, r_scale, -1 * h_scale])
 
 opus = [list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9,
@@ -229,7 +230,7 @@ for i in working:
         for b in range(1, 42):
             if b == 21:
                 continue
-            i.write(b, 5,str("=A")+ str(b + 1) + str("&\" \"&B") + str(b + 1) + str("&\" \"&C") + str(b + 1) + str("&\" \"&D") + str(b + 1) + str("&\" fix ppmm\""))
+            i.write(b, 5,str("=A")+ str(b + 1) + str("&\" \"&B") + str(b + 1) + str("&\" \"&C") + str(b + 1) + str("&\" \"&D") + str(b + 1) + str("&\" fix pp\""))
 
 
 worksheet0.set_column('A:A', 70)
@@ -253,14 +254,14 @@ for t in range (2,22):
     worksheet0.write(t, 47, str("='")+str("wysokość ") + sheet_names[7] + str("'!A") + str(t))
 worksheet0.write(2, 48, str("='")+str("wysokość ") + sheet_names[8] + str("'!A") + str(2))
 
-worksheet0.write(0, 0, str("Kopuła Żebrowa"))
-worksheet0.write(0, 1, str("Kopuła Schwedlera"))
-worksheet0.write(0, 2, str("Kopuła Lamella"))
-worksheet0.write(0, 5, str("współrzędne wierzchołków lamela"))
-worksheet0.write(0, 6, str("współrzędne wierzchołków ż/sch"))
-worksheet0.write(0, 10, str("połączenie poziome ż/sch"))
-worksheet0.write(0, 13, str("połączenie pionowe ż/sch"))
-worksheet0.write(0, 15, str("połączenie ukośne ż/sch"))
+worksheet0.write(0, 0, str("$ Kopuła Żebrowa"))
+worksheet0.write(0, 1, str("$ Kopuła Schwedlera"))
+worksheet0.write(0, 2, str("$ Kopuła Lamella"))
+worksheet0.write(0, 5, str("$ współrzędne wierzchołków lamela"))
+worksheet0.write(0, 6, str("$ współrzędne wierzchołków ż/sch"))
+worksheet0.write(0, 10, str("$ połączenie poziome ż/sch"))
+worksheet0.write(0, 13, str("$ połączenie pionowe ż/sch"))
+worksheet0.write(0, 15, str("$ połączenie ukośne ż/sch"))
 
 
 for t in range (2,162):
@@ -268,49 +269,42 @@ for t in range (2,162):
     worksheet0.write(t, 6, str("='")+str("wysokość ") + sheet_names[0] + str("'!F") + str(t))
     worksheet0.write(t, 10, str("='")+str("wysokość ") + sheet_names[0] + str("'!I") + str(t))
     worksheet0.write(t, 13, str("=") + str(t + 10000-1) + str("&\" npa \"&AO") + str(t + 1) + str("&\" npe \"&AP") + str(t + 1) + str("&\" sno ") + str(s) +str("\""))
-    worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AO") + str(t + 1) + str("&\" npe \"&AP") + str(t + 2) + str("&\" sno ") + str(s) +str("\""))
     worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AP") + str(t + 1) + str("&\" npe \"&AO") + str(t + 2) + str("&\" sno ") + str(s) +str("\""))
     if t > 21:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[1] + str("'!F") + str(t+1))
         worksheet0.write(t, 6, str("='")+str("wysokość ") + sheet_names[1] + str("'!F") + str(t-20))
         worksheet0.write(t, 10, str("='")+str("wysokość ") + sheet_names[1] + str("'!I") + str(t-20))
         worksheet0.write(t, 13,str("=") + str(t + 10000-1) + str("&\" npa \"&AP") + str(t - 19) + str("&\" npe \"&AQ") + str(t - 19) + str("&\" sno ") + str(s) +str("\""))
-        worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AP") + str(t - 19) + str("&\" npe \"&AQ") + str(t - 18) + str("&\" sno ") + str(s) +str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AP") + str(t - 19) + str("&\" npe \"&AQ") + str(t - 18) + str("&\" sno ") + str(s) +str("\""))
     if t > 41:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[2] + str("'!F") + str(t-19))
         worksheet0.write(t, 6, str("='")+str("wysokość ") + sheet_names[2] + str("'!F") + str(t-40))
         worksheet0.write(t, 10, str("='")+str("wysokość ") + sheet_names[2] + str("'!I") + str(t-40))
         worksheet0.write(t, 13,str("=") + str(t + 10000-1) + str("&\" npa \"&AQ") + str(t - 39) + str("&\" npe \"&AR") + str(t - 39) + str("&\" sno ") + str(s) +str("\""))
-        worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AQ") + str(t - 39) + str("&\" npe \"&AR") + str(t - 38) + str("&\" sno ") + str(s) +str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AR") + str(t - 39) + str("&\" npe \"&AQ") + str(t - 38) + str("&\" sno ") + str(s) +str("\""))
     if t > 61:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[3] + str("'!F") + str(t - 39))
         worksheet0.write(t, 6, str("='")+str("wysokość ") + sheet_names[3] + str("'!F") + str(t-60))
         worksheet0.write(t, 10, str("='")+str("wysokość ") + sheet_names[3] + str("'!I") + str(t-60))
         worksheet0.write(t, 13,str("=") + str(t + 10000-1) + str("&\" npa \"&AR") + str(t - 59) + str("&\" npe \"&AS") + str(t - 59) + str("&\" sno ") + str(s) +str("\""))
-        worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AR") + str(t - 59) + str("&\" npe \"&AS") + str(t - 58) + str("&\" sno ") + str(s) +str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AR") + str(t - 59) + str("&\" npe \"&AS") + str(t - 58) + str("&\" sno ") + str(s) +str("\""))
     if t > 81:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[4] + str("'!F") + str(t - 59))
         worksheet0.write(t, 6, str("='")+str("wysokość ") + sheet_names[4] + str("'!F") + str(t-80))
         worksheet0.write(t, 10, str("='")+str("wysokość ") + sheet_names[4] + str("'!I") + str(t-80))
         worksheet0.write(t, 13,str("=") + str(t + 10000-1) + str("&\" npa \"&AS") + str(t - 79) + str("&\" npe \"&AT") + str(t - 79) + str("&\" sno ") + str(s) +str("\""))
-        worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AS") + str(t - 79) + str("&\" npe \"&AT") + str(t - 78) + str("&\" sno ") + str(s) +str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AT") + str(t - 79) + str("&\" npe \"&AS") + str(t - 78) + str("&\" sno ") + str(s) +str("\""))
     if t > 101:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[5] + str("'!F") + str(t - 79))
         worksheet0.write(t, 6, str("='")+str("wysokość ") + sheet_names[5] + str("'!F") + str(t-100))
         worksheet0.write(t, 10, str("='")+str("wysokość ") + sheet_names[5] + str("'!I") + str(t-100))
         worksheet0.write(t, 13,str("=") + str(t + 10000-1) + str("&\" npa \"&AT") + str(t - 99) + str("&\" npe \"&AU") + str(t - 99) + str("&\" sno ") + str(s) +str("\""))
-        worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AT") + str(t - 99) + str("&\" npe \"&AU") + str(t - 98) + str("&\" sno ") + str(s) +str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AT") + str(t - 99) + str("&\" npe \"&AU") + str(t - 98) + str("&\" sno ") + str(s) +str("\""))
     if t > 121:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[6] + str("'!F") + str(t - 99))
         worksheet0.write(t, 6, str("='")+ str("wysokość ") + sheet_names[6] + str("'!F") + str(t-120))
         worksheet0.write(t, 10, str("='")+ str("wysokość ") + sheet_names[6] + str("'!I") + str(t-120))
         worksheet0.write(t, 13,str("=") + str(t + 10000-1) + str("&\" npa \"&AU") + str(t - 119) + str("&\" npe \"&AV") + str(t - 119) + str("&\" sno ") + str(s) +str("\""))
-        worksheet0.write(t, 15, str("=") + str(t + 10200-1) + str("&\" npa \"&AU") + str(t - 119) + str("&\" npe \"&AV") + str(t - 118) + str("&\" sno ") + str(s) +str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AV") + str(t - 119) + str("&\" npe \"&AU") + str(t - 118) + str("&\" sno ") + str(s) +str("\""))
     if t > 141:
         worksheet0.write(t, 5, str("='") + str("wysokość ") + sheet_names[7] + str("'!F") + str(t - 119))
@@ -318,28 +312,28 @@ for t in range (2,162):
         worksheet0.write(t, 10, str("='")+ str("wysokość ") + sheet_names[7] + str("'!I") + str(t-140))
         worksheet0.write(t, 13, str("=") + str(t + 10000 - 1) + str("&\" npa \"&AV") + str(t - 139) + str("&\" npe \"&AW3") + str("&\" sno ") + str(s) +str("\""))
     if t == 21:
-        worksheet0.write(t, 15, str("=") + str(t + 10200 - 1) + str("&\" npa \"&AO") + str(t + 1) + str("&\" npe \"&AP") + str(t - 18) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AP") + str(t + 1) + str("&\" npe \"&AO") + str(t - 18) + str("&\" sno ") + str(s) +str("\""))
     if t == 41:
-        worksheet0.write(t, 15, str("=") + str(t + 10200 - 1) + str("&\" npa \"&AP") + str(t - 19) + str("&\" npe \"&AQ") + str(t - 38) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17, str("=") + str(t + 10400-1) + str("&\" npa \"&AP") + str(t - 19) + str("&\" npe \"&AQ") + str(t - 38) + str("&\" sno ") + str(s) +str("\""))
     if t == 61:
-        worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AQ") + str(t - 39) + str("&\" npe \"&AR") + str(t - 58) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17,str("=") + str(t + 10400-1) + str("&\" npa \"&AR") + str(t - 39) + str("&\" npe \"&AQ") + str(t - 58) + str("&\" sno ") + str(s) + str("\""))
     if t == 81:
-        worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AR") + str(t - 59) + str("&\" npe \"&AS") + str(t - 78) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17,str("=") + str(t + 10400-1) + str("&\" npa \"&AR") + str(t - 59) + str("&\" npe \"&AS") + str(t - 78) + str("&\" sno ") + str(s) + str("\""))
     if t == 101:
-        worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AS") + str(t - 79) + str("&\" npe \"&AT") + str(t - 98) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17,str("=") + str(t + 10400-1) + str("&\" npa \"&AT") + str(t - 79) + str("&\" npe \"&AS") + str(t - 98) + str("&\" sno ") + str(s) + str("\""))
     if t == 121:
-        worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AT") + str(t - 99) + str("&\" npe \"&AU") + str(t - 118) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17,str("=") + str(t + 10400-1) + str("&\" npa \"&AT") + str(t - 99) + str("&\" npe \"&AU") + str(t - 118) + str("&\" sno ") + str(s) + str("\""))
     if t == 141:
-        worksheet0.write(t, 15,str("=") + str(t + 10200 - 1) + str("&\" npa \"&AU") + str(t - 119) + str("&\" npe \"&AV") + str(t - 138) + str("&\" sno ") + str(s) + str("\""))
         worksheet0.write(t, 17,str("=") + str(t + 10400-1) + str("&\" npa \"&AV") + str(t - 119) + str("&\" npe \"&AU") + str(t - 138) + str("&\" sno ") + str(s) + str("\""))
 worksheet0.write(162, 5, str("='") + str("wysokość ") + sheet_names[8] + str("'!F") + str(23))
 worksheet0.write(162, 6, str("='") + str("wysokość ") + sheet_names[8] + str("'!F") + str(2))
+
+cells = ["AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV"]
+
+for num, cell_num in enumerate(cells):
+    worksheet0.write(num+2, 15, str("=") + str(num + 10200 - 1) + str("&\" npa \"&") + cells[num] + str(num + 1) + str("&\" npe \"&") + cells[num+1] + str(
+            num + 2) + str("&\" sno ") + str(s) + str("\""))
+
 
 
 for t in range(0, 3):
@@ -349,16 +343,16 @@ for t in range(0, 3):
     worksheet0.write(5, t, "$ norma")
     worksheet0.write(6, t, "norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2")
     worksheet0.write(8, t, "$ materialy")
-    worksheet0.write(9, t, "stee no 1 type s clas " + str(stal) + " $ stal")
+    worksheet0.write(9, t, "stee no 1 type s clas " + str(steel) + " $ stal")
     worksheet0.write(11, t, "$ przekroj poprzeczny")
-    worksheet0.write(13, t, "prof no 1 type " + przekroj1 + " mno 1")
-    worksheet0.write(15, t, "scit no 2 " + przekroj2 + " mno 1")
+    worksheet0.write(13, t, "prof no 1 type " + profile_1 + " mno 1")
+    worksheet0.write(15, t, "scit no 2 " + profile_2 + " mno 1")
     worksheet0.write(17, t, "end")
     worksheet0.write(19, t, "+prog sofimshc urs:2")
     worksheet0.write(20, t, "head geometria")
     worksheet0.write(21, t, "syst 3d")
     worksheet0.write(22, t, "echo full")
-    worksheet0.write(24, t, "ctrl mesh 1; ctrl hmin 1 $ PARAMETRY GENERATORA SIATKI ES")
+    worksheet0.write(24, t, "ctrl mesh 0.5; ctrl hmin 1.0 $ PARAMETRY GENERATORA SIATKI ES")
     worksheet0.write(26, t, "$ PUNKTY definicja")
     worksheet0.write(27, t, "=\"spt no \""+str("&G3"))
     if t == 2:
@@ -368,23 +362,23 @@ for t in range(0, 3):
         if t == 2:
             worksheet0.write(z, t, str("=F") + str(z - 24))
     worksheet0.write(199, t, "$ definicja konstrukcji")
-    worksheet0.write(200, t, "=\"sln no \""+str("&K3"))
-    for z in range(201, 360):
-        worksheet0.write(z, t, str("=K")+str(z-197))
-    for z in range(360, 360+160):
-        worksheet0.write(z, t, str("=N")+str(z-357))
+    worksheet0.write(200, t, "=\"sln no \""+str("&K23"))
+    for z in range(201, 340):
+        worksheet0.write(z, t, str("=K")+str(z-177))
+    for z in range(340, 340+160):
+        worksheet0.write(z, t, str("=N")+str(z-337))
     if t == 1:
-        for z in range(360+160, 360+160+140):
-            worksheet0.write(z, t, str("=P") + str(z - 517))
+        for z in range(340+160, 340+160+140):
+            worksheet0.write(z, t, str("=P") + str(z - 497))
     if t == 2:
-        for z in range(360+160, 360+160+140):
-            worksheet0.write(z, t, str("=R") + str(z - 517))
+        for z in range(340+160, 340+160+140):
+            worksheet0.write(z, t, str("=R") + str(z - 497))
     worksheet0.write(700, t, str("end"))
     worksheet0.write(701, t, "+prog sofiload urs:4")
     worksheet0.write(702, t, "head obciazenia")
     worksheet0.write(703, t, "lc 1 dlz 1 titl obc_cw")
     worksheet0.write(704, t, "lc 2 titl obc_skupione")
-    worksheet0.write(705, t, "node no 161 type pzz p1 "+str(sila))
+    worksheet0.write(705, t, "node no 161 type pzz p1 " + str(force))
     worksheet0.write(706, t, "end")
     worksheet0.write(708, t, "+prog ase urs:5")
     worksheet0.write(709, t, "head obliczenia")
@@ -398,3 +392,8 @@ for t in range(0, 3):
 
 # zapisz.
 writer.save()
+
+
+
+#vertices = pd.read_excel(r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx")
+#pyperclip.copy(vertices["$ Kopuła Żebrowa"].to_string(index=False))
