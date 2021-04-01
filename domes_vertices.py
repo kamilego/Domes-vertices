@@ -9,18 +9,18 @@ import pyperclip
 # sys.modules[__name__].__dict__.clear()
 
 # _____________________________TO BE SET BY USER_________________________________
-dome_radius = float(50)          # metry
+dome_radius = float(30)          # metry
 dome_height = float(30)           # metry
 steel = int(235)                 # MPa
-s = int(2)                       # rodzaj przekroju
-profile_1 = str("HEB 600")       # przekrój poprzeczny nr1 - mm
-profile_2 = str("d 160 t 0")      # przekrój poprzeczny nr2 - mm
+s = int(1)                       # rodzaj przekroju
+profile_1 = str("d 100 t 20")       # przekrój poprzeczny nr1 - mm
 force = str(1000)                # siła kN
 # _____________________________TO BE SET BY USER END_____________________________
 
 
 def takethird(elem):
     return elem[2]
+
 
 def clockwiseangle_and_distance(point):
     # Vector between point and the origin: v = p - o
@@ -328,12 +328,29 @@ for t in range (2,162):
 worksheet0.write(162, 5, str("='") + str("wysokość ") + sheet_names[8] + str("'!F") + str(23))
 worksheet0.write(162, 6, str("='") + str("wysokość ") + sheet_names[8] + str("'!F") + str(2))
 
-cells = ["AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV"]
+cells = [num for num in range(1,161,20)]
 
-for num, cell_num in enumerate(cells):
-    worksheet0.write(num+2, 15, str("=") + str(num + 10200 - 1) + str("&\" npa \"&") + cells[num] + str(num + 1) + str("&\" npe \"&") + cells[num+1] + str(
-            num + 2) + str("&\" sno ") + str(s) + str("\""))
-
+for num in range(7):
+    worksheet0.write(num + 2, 15, str(num + 10200) + str(" npa ") + str(cells[num]) + str(" npe ") + str(cells[num+1]+1) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 7, 15, str(num + 7 + 10200) + str(" npa ") + str(cells[num]+2) + str(" npe ") + str(cells[num+1]+3) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 14, 15, str(num + 14 + 10200) + str(" npa ") + str(cells[num]+4) + str(" npe ") + str(cells[num+1]+5) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 21, 15, str(num + 21 + 10200) + str(" npa ") + str(cells[num]+6) + str(" npe ") + str(cells[num+1]+7) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 28, 15, str(num + 28 + 10200) + str(" npa ") + str(cells[num]+8) + str(" npe ") + str(cells[num+1]+9) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 35, 15, str(num + 35 + 10200) + str(" npa ") + str(cells[num]+10) + str(" npe ") + str(cells[num+1]+11) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 42, 15, str(num + 42 + 10200) + str(" npa ") + str(cells[num]+12) + str(" npe ") + str(cells[num+1]+13) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 49, 15, str(num + 49 + 10200) + str(" npa ") + str(cells[num]+14) + str(" npe ") + str(cells[num+1]+15) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 56, 15, str(num + 56 + 10200) + str(" npa ") + str(cells[num]+16) + str(" npe ") + str(cells[num+1]+17) + str(" sno ") + str(s))
+    worksheet0.write(num + 2 + 63, 15, str(num + 63 + 10200) + str(" npa ") + str(cells[num]+18) + str(" npe ") + str(cells[num+1]+19) + str(" sno ") + str(s))
+    worksheet0.write(num + 72, 15, str(num + 10300) + str(" npa ") + str(cells[num]+2) + str(" npe ") + str(cells[num+1]+1) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 7, 15, str(num + 7 + 10300) + str(" npa ") + str(cells[num]+4) + str(" npe ") + str(cells[num+1]+3) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 14, 15, str(num + 14 + 10300) + str(" npa ") + str(cells[num]+6) + str(" npe ") + str(cells[num+1]+5) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 21, 15, str(num + 21 + 10300) + str(" npa ") + str(cells[num]+8) + str(" npe ") + str(cells[num+1]+7) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 28, 15, str(num + 28 + 10300) + str(" npa ") + str(cells[num]+10) + str(" npe ") + str(cells[num+1]+9) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 35, 15, str(num + 35 + 10300) + str(" npa ") + str(cells[num]+12) + str(" npe ") + str(cells[num+1]+11) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 42, 15, str(num + 42 + 10300) + str(" npa ") + str(cells[num]+14) + str(" npe ") + str(cells[num+1]+13) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 49, 15, str(num + 49 + 10300) + str(" npa ") + str(cells[num]+16) + str(" npe ") + str(cells[num+1]+15) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 56, 15, str(num + 56 + 10300) + str(" npa ") + str(cells[num]+18) + str(" npe ") + str(cells[num+1]+17) + str(" sno ") + str(s))
+    worksheet0.write(num + 72 + 63, 15, str(num + 63 + 10300) + str(" npa ") + str(cells[num]) + str(" npe ") + str(cells[num+1]+19) + str(" sno ") + str(s))
 
 
 for t in range(0, 3):
@@ -345,8 +362,7 @@ for t in range(0, 3):
     worksheet0.write(8, t, "$ materialy")
     worksheet0.write(9, t, "stee no 1 type s clas " + str(steel) + " $ stal")
     worksheet0.write(11, t, "$ przekroj poprzeczny")
-    worksheet0.write(13, t, "prof no 1 type " + profile_1 + " mno 1")
-    worksheet0.write(15, t, "scit no 2 " + profile_2 + " mno 1")
+    worksheet0.write(13, t, "scit no 1  " + profile_1 + " mno 1")
     worksheet0.write(17, t, "end")
     worksheet0.write(19, t, "+prog sofimshc urs:2")
     worksheet0.write(20, t, "head geometria")
