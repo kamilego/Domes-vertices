@@ -9,12 +9,12 @@ import pyperclip
 # sys.modules[__name__].__dict__.clear()
 
 # _____________________________TO BE SET BY USER_________________________________
-dome_radius = float(30)          # metry
-dome_height = float(30)           # metry
+dome_radius = float(10)          # metry
+dome_height = dome_radius          # metry
 steel = int(235)                 # MPa
 s = int(1)                       # rodzaj przekroju
-profile_1 = str("d 100 t 20")       # przekrój poprzeczny nr1 - mm
-force = str(1000)                # siła kN
+profile_1 = str("d 108 t 4")       # przekrój poprzeczny nr1 - mm
+force = str(2513)                # siła kN
 # _____________________________TO BE SET BY USER END_____________________________
 
 
@@ -44,8 +44,8 @@ def clockwiseangle_and_distance(point):
     return angle, lenvector
 
 # załadowanie pliku excel z punktami z cada - X,Y,Z
-df = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\wierzchołki.xlsx")
-df_2 = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\asd.xlsx")
+df = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices.xlsx")
+df_2 = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices_lamell.xlsx")
 
 # stworzenie listy i transpozycja jej
 mylist = [df['Position X'].tolist(), df['Position Y'].tolist(), df['Position Z'].tolist()]
