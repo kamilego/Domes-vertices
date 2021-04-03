@@ -3,6 +3,8 @@ import math
 import numpy as np
 import xlsxwriter
 import pyperclip
+import re
+from math import sqrt
 
 # to clear all variables
 # import sys
@@ -13,7 +15,7 @@ dome_radius = float(10)          # metry
 dome_height = dome_radius          # metry
 steel = int(235)                 # MPa
 s = int(1)                       # rodzaj przekroju
-profile_1 = str("d 108 t 4")       # przekrój poprzeczny nr1 - mm
+profile_1 = str("d 133 t 10")       # przekrój poprzeczny nr1 - mm
 force = str(2513)                # siła kN
 # _____________________________TO BE SET BY USER END_____________________________
 
@@ -42,6 +44,28 @@ def clockwiseangle_and_distance(point):
     # I return first the angle because that's the primary sorting criterium
     # but if two vectors have the same angle then the shorter distance should come first.
     return angle, lenvector
+
+
+def create_dictionary(dic_list, dict):
+    for num, elem in enumerate(dic_list, start=1):
+        dict[num] = elem
+
+
+def list_of_joined_vertices(dome_list):
+    ver_list = []
+    for elem in dome_list:
+        ver_list.append((num_vertex.findall(elem)[0].replace(" npe", "")).split(" "))
+    return ver_list
+
+
+def sum_of_length_count(list,dict):
+    sum = 0
+    for elem in list:
+        l = sqrt((dict[int(elem[0])][0] - dict[int(elem[1])][0]) ** 2 +
+                 (dict[int(elem[0])][1] - dict[int(elem[1])][1]) ** 2 +
+                 (dict[int(elem[0])][2] - dict[int(elem[1])][2]) ** 2)
+        sum += l
+    return round(sum)
 
 # załadowanie pliku excel z punktami z cada - X,Y,Z
 df = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices.xlsx")
@@ -233,9 +257,10 @@ for i in working:
             i.write(b, 5,str("=A")+ str(b + 1) + str("&\" \"&B") + str(b + 1) + str("&\" \"&C") + str(b + 1) + str("&\" \"&D") + str(b + 1) + str("&\" fix pp\""))
 
 
-worksheet0.set_column('A:A', 70)
+worksheet0.set_column('A:A', 1)
 worksheet0.set_column('B:B', 70)
 worksheet0.set_column('C:C', 70)
+worksheet0.set_column('D:D', 70)
 worksheet0.set_column('F:F', 30)
 worksheet0.set_column('G:G', 30)
 worksheet0.set_column('K:K', 25)
@@ -254,9 +279,11 @@ for t in range (2,22):
     worksheet0.write(t, 47, str("='")+str("wysokość ") + sheet_names[7] + str("'!A") + str(t))
 worksheet0.write(2, 48, str("='")+str("wysokość ") + sheet_names[8] + str("'!A") + str(2))
 
-worksheet0.write(0, 0, str("$ Kopuła Żebrowa"))
-worksheet0.write(0, 1, str("$ Kopuła Schwedlera"))
-worksheet0.write(0, 2, str("$ Kopuła Lamella"))
+
+worksheet0.write(0, 1, str(" "))
+worksheet0.write(0, 1, "$ Kopuła Żebrowa")
+worksheet0.write(0, 2, "$ Kopuła Schwedlera")
+worksheet0.write(0, 3, "$ Kopuła Lamella")
 worksheet0.write(0, 5, str("$ współrzędne wierzchołków lamela"))
 worksheet0.write(0, 6, str("$ współrzędne wierzchołków ż/sch"))
 worksheet0.write(0, 10, str("$ połączenie poziome ż/sch"))
@@ -353,16 +380,16 @@ for num in range(7):
     worksheet0.write(num + 72 + 63, 15, str(num + 63 + 10300) + str(" npa ") + str(cells[num]) + str(" npe ") + str(cells[num+1]+19) + str(" sno ") + str(s))
 
 
-for t in range(0, 3):
-    worksheet0.write(1, t, "+prog aqua urs:1")
-    worksheet0.write(2, t, "head przekroje+materialy")
-    worksheet0.write(3, t, "echo full")
-    worksheet0.write(5, t, "$ norma")
-    worksheet0.write(6, t, "norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2")
-    worksheet0.write(8, t, "$ materialy")
-    worksheet0.write(9, t, "stee no 1 type s clas " + str(steel) + " $ stal")
-    worksheet0.write(11, t, "$ przekroj poprzeczny")
-    worksheet0.write(13, t, "scit no 1  " + profile_1 + " mno 1")
+for t in range(1, 4):
+    worksheet0.write(2, t, "+prog aqua urs:1")
+    worksheet0.write(3, t, "head przekroje+materialy")
+    worksheet0.write(4, t, "echo full")
+    worksheet0.write(6, t, "$ norma")
+    worksheet0.write(7, t, "norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2")
+    worksheet0.write(9, t, "$ materialy")
+    worksheet0.write(10, t, "stee no 1 type s clas " + str(steel) + " $ stal")
+    worksheet0.write(12, t, "$ przekroj poprzeczny")
+    worksheet0.write(14, t, "scit no 1  " + profile_1 + " mno 1")
     worksheet0.write(17, t, "end")
     worksheet0.write(19, t, "+prog sofimshc urs:2")
     worksheet0.write(20, t, "head geometria")
@@ -371,11 +398,11 @@ for t in range(0, 3):
     worksheet0.write(24, t, "ctrl mesh 0.5; ctrl hmin 1.0 $ PARAMETRY GENERATORA SIATKI ES")
     worksheet0.write(26, t, "$ PUNKTY definicja")
     worksheet0.write(27, t, "=\"spt no \""+str("&G3"))
-    if t == 2:
+    if t == 3:
         worksheet0.write(27, t, "=\"spt no \"" + str("&F3"))
     for z in range(28, 28+160):
         worksheet0.write(z, t, str("=G")+str(z-24))
-        if t == 2:
+        if t == 3:
             worksheet0.write(z, t, str("=F") + str(z - 24))
     worksheet0.write(199, t, "$ definicja konstrukcji")
     worksheet0.write(200, t, "=\"sln no \""+str("&K23"))
@@ -383,10 +410,10 @@ for t in range(0, 3):
         worksheet0.write(z, t, str("=K")+str(z-177))
     for z in range(340, 340+160):
         worksheet0.write(z, t, str("=N")+str(z-337))
-    if t == 1:
+    if t == 2:
         for z in range(340+160, 340+160+140):
             worksheet0.write(z, t, str("=P") + str(z - 497))
-    if t == 2:
+    if t == 3:
         for z in range(340+160, 340+160+140):
             worksheet0.write(z, t, str("=R") + str(z - 497))
     worksheet0.write(700, t, str("end"))
@@ -406,6 +433,7 @@ for t in range(0, 3):
     worksheet0.write(716, t, "lcc 2 fact 1.5")
     worksheet0.write(717, t, "end")
 
+
 # zapisz.
 writer.save()
 
@@ -413,3 +441,32 @@ writer.save()
 
 #vertices = pd.read_excel(r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx")
 #pyperclip.copy(vertices["$ Kopuła Żebrowa"].to_string(index=False))
+
+#making dictionary for vertices,
+# all_lists = [list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9,
+#         list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9]
+
+all_lists = np.concatenate((list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9)).tolist()
+all_lists_2 = np.concatenate((list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9)).tolist()
+
+dic_vertices = {}
+dic_vertices_lamell = {}
+
+create_dictionary(all_lists, dic_vertices)
+create_dictionary(all_lists_2, dic_vertices_lamell)
+
+read_excel = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\to_count.xlsx", index_col=0)
+
+dome_1 = read_excel.iloc[:, 0].tolist()[199:499]
+dome_2 = read_excel.iloc[:, 1].tolist()[199:639]
+dome_3 = read_excel.iloc[:, 2].tolist()[199:639]
+
+num_vertex = re.compile(r'\d npe \d|\d npe \d\d|\d\d npe \d|\d\d npe \d\d|\d\d npe \d\d\d|\d\d\d npe \d\d|\d\d\d npe \d\d\d')
+
+dome_1_list = list_of_joined_vertices(dome_1)
+dome_2_list = list_of_joined_vertices(dome_2)
+dome_3_list = list_of_joined_vertices(dome_3)
+
+dome_1_lenghth = sum_of_length_count(dome_1_list, dic_vertices)
+dome_2_lenghth = sum_of_length_count(dome_2_list, dic_vertices)
+dome_3_lenghth = sum_of_length_count(dome_3_list, dic_vertices_lamell)
