@@ -46,9 +46,9 @@ def clockwiseangle_and_distance(point):
     return angle, lenvector
 
 
-def create_dictionary(dic_list, dict):
+def create_dictionary(dic_list, diction):
     for num, elem in enumerate(dic_list, start=1):
-        dict[num] = elem
+        diction[num] = elem
 
 
 def list_of_joined_vertices(dome_list):
@@ -58,18 +58,23 @@ def list_of_joined_vertices(dome_list):
     return ver_list
 
 
-def sum_of_length_count(list,dict):
+def sum_of_length_count(list, diction):
     sum = 0
     for elem in list:
-        l = sqrt((dict[int(elem[0])][0] - dict[int(elem[1])][0]) ** 2 +
-                 (dict[int(elem[0])][1] - dict[int(elem[1])][1]) ** 2 +
-                 (dict[int(elem[0])][2] - dict[int(elem[1])][2]) ** 2)
+        l = sqrt((diction[int(elem[0])][0] - diction[int(elem[1])][0]) ** 2 +
+                 (diction[int(elem[0])][1] - diction[int(elem[1])][1]) ** 2 +
+                 (diction[int(elem[0])][2] - diction[int(elem[1])][2]) ** 2)
         sum += l
     return round(sum)
 
 # załadowanie pliku excel z punktami z cada - X,Y,Z
-df = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices.xlsx")
-df_2 = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices_lamell.xlsx")
+path_1 = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices.xlsx"
+path_2 = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices_lamell.xlsx"
+path_3 = r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx"
+path_4 = r"D:\Programy\z.studi\ROK 6\magister\to_count.xlsx"
+
+df = pd.read_excel(path_1)
+df_2 = pd.read_excel(path_2)
 
 # stworzenie listy i transpozycja jej
 mylist = [df['Position X'].tolist(), df['Position Y'].tolist(), df['Position Z'].tolist()]
@@ -438,13 +443,9 @@ for t in range(1, 4):
 writer.save()
 
 
-
 #vertices = pd.read_excel(r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx")
 #pyperclip.copy(vertices["$ Kopuła Żebrowa"].to_string(index=False))
 
-#making dictionary for vertices,
-# all_lists = [list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9,
-#         list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9]
 
 all_lists = np.concatenate((list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9)).tolist()
 all_lists_2 = np.concatenate((list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9)).tolist()
@@ -467,6 +468,6 @@ dome_1_list = list_of_joined_vertices(dome_1)
 dome_2_list = list_of_joined_vertices(dome_2)
 dome_3_list = list_of_joined_vertices(dome_3)
 
-dome_1_lenghth = sum_of_length_count(dome_1_list, dic_vertices)
-dome_2_lenghth = sum_of_length_count(dome_2_list, dic_vertices)
-dome_3_lenghth = sum_of_length_count(dome_3_list, dic_vertices_lamell)
+dome_1_length = sum_of_length_count(dome_1_list, dic_vertices)
+dome_2_length = sum_of_length_count(dome_2_list, dic_vertices)
+dome_3_length = sum_of_length_count(dome_3_list, dic_vertices_lamell)
