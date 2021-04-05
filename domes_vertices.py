@@ -67,6 +67,11 @@ def sum_of_length_count(list, diction):
         sum += l
     return round(sum)
 
+
+def rotate_clock_wise(list, treshold1, treshold2, rot = clockwiseangle_and_distance):
+    return np.array(sorted(list[treshold1:treshold2], key=rot))
+
+
 # załadowanie pliku excel z punktami z cada - X,Y,Z
 path_1 = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices.xlsx"
 path_2 = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices_lamell.xlsx"
@@ -91,26 +96,27 @@ mylist_2 = np.array(mylist_2)
 origin = [0, 0]
 refvec = [0, 1]
 
+
 # stworzenie list z posegregowanymi X i Y zgodnie z kierunkiem wskazówek zegara
 list_a = np.array([])
-list_1 = np.array(sorted(mylist[0:20], key=clockwiseangle_and_distance))
-list_2 = np.array(sorted(mylist[20:40], key=clockwiseangle_and_distance))
-list_3 = np.array(sorted(mylist[40:60], key=clockwiseangle_and_distance))
-list_4 = np.array(sorted(mylist[60:80], key=clockwiseangle_and_distance))
-list_5 = np.array(sorted(mylist[80:100], key=clockwiseangle_and_distance))
-list_6 = np.array(sorted(mylist[100:120], key=clockwiseangle_and_distance))
-list_7 = np.array(sorted(mylist[120:140], key=clockwiseangle_and_distance))
-list_8 = np.array(sorted(mylist[140:160], key=clockwiseangle_and_distance))
+list_1 = rotate_clock_wise(mylist, 0, 20)
+list_2 = rotate_clock_wise(mylist, 20, 40)
+list_3 = rotate_clock_wise(mylist, 40, 60)
+list_4 = rotate_clock_wise(mylist, 60, 80)
+list_5 = rotate_clock_wise(mylist, 80, 100)
+list_6 = rotate_clock_wise(mylist, 100, 120)
+list_7 = rotate_clock_wise(mylist, 120, 140)
+list_8 = rotate_clock_wise(mylist, 140, 160)
 list_9 = np.array(sorted(mylist[160:161]))
 
-list2_1 = np.array(sorted(mylist_2[0:20], key=clockwiseangle_and_distance))
-list2_2 = np.array(sorted(mylist_2[20:40], key=clockwiseangle_and_distance))
-list2_3 = np.array(sorted(mylist_2[40:60], key=clockwiseangle_and_distance))
-list2_4 = np.array(sorted(mylist_2[60:80], key=clockwiseangle_and_distance))
-list2_5 = np.array(sorted(mylist_2[80:100], key=clockwiseangle_and_distance))
-list2_6 = np.array(sorted(mylist_2[100:120], key=clockwiseangle_and_distance))
-list2_7 = np.array(sorted(mylist_2[120:140], key=clockwiseangle_and_distance))
-list2_8 = np.array(sorted(mylist_2[140:160], key=clockwiseangle_and_distance))
+list2_1 = rotate_clock_wise(mylist_2, 0, 20)
+list2_2 = rotate_clock_wise(mylist_2, 20, 40)
+list2_3 = rotate_clock_wise(mylist_2, 40, 60)
+list2_4 = rotate_clock_wise(mylist_2, 60, 80)
+list2_5 = rotate_clock_wise(mylist_2, 80, 100)
+list2_6 = rotate_clock_wise(mylist_2, 100, 120)
+list2_7 = rotate_clock_wise(mylist_2, 120, 140)
+list2_8 = rotate_clock_wise(mylist_2, 140, 160)
 list2_9 = np.array(sorted(mylist_2[160:161]))
 
 
