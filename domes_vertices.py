@@ -72,7 +72,7 @@ def rotate_clock_wise(list, treshold1, treshold2, rot = clockwiseangle_and_dista
     return np.array(sorted(list[treshold1:treshold2], key=rot))
 
 
-# załadowanie pliku excel z punktami z cada - X,Y,Z
+# paths to xlsx with coordinates X Y Z of vertices from CAD
 path_1 = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices.xlsx"
 path_2 = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\vertices_lamell.xlsx"
 path_3 = r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx"
@@ -81,7 +81,7 @@ path_4 = r"D:\Programy\z.studi\ROK 6\magister\to_count.xlsx"
 df = pd.read_excel(path_1)
 df_2 = pd.read_excel(path_2)
 
-# stworzenie listy i transpozycja jej
+# creating lost and transposition
 mylist = [df['Position X'].tolist(), df['Position Y'].tolist(), df['Position Z'].tolist()]
 mylist = list(map(list, zip(*mylist)))
 mylist.sort(key=takethird)
@@ -92,12 +92,12 @@ mylist_2 = list(map(list, zip(*mylist_2)))
 mylist_2.sort(key=takethird)
 mylist_2 = np.array(mylist_2)
 
-# założenie współrzędnych wektora
+# vektors coordinates
 origin = [0, 0]
 refvec = [0, 1]
 
 
-# stworzenie list z posegregowanymi X i Y zgodnie z kierunkiem wskazówek zegara
+# lists created by function with clockwise sort
 list_a = np.array([])
 list_1 = rotate_clock_wise(mylist, 0, 20)
 list_2 = rotate_clock_wise(mylist, 20, 40)
@@ -120,16 +120,18 @@ list2_8 = rotate_clock_wise(mylist_2, 140, 160)
 list2_9 = np.array(sorted(mylist_2[160:161]))
 
 
-# ewentualna zmiana geometrii kopuły
+# parameters to manipulate domes values
 r_scale = dome_radius / float(1)
 h_scale = dome_height / float(1)
 x2 = np.array([r_scale, r_scale, -1 * h_scale])
 
 opus = [list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9,
         list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9]
+# change coma to dot
 for n in opus:
     np.dot(n, x2)
 
+# provide that list can be manipulate
 list_1 = np.multiply(list_1, x2)
 list_2 = np.multiply(list_2, x2)
 list_3 = np.multiply(list_3, x2)
@@ -149,7 +151,7 @@ list2_7 = np.multiply(list2_7, x2)
 list2_8 = np.multiply(list2_8, x2)
 list2_9 = np.multiply(list2_9, x2)
 
-# stworzenie dataframe do excela
+# dataframe for excel
 dfa = pd.DataFrame(list_a)
 df1 = pd.DataFrame(list_1,index=[str(i).zfill(1) for i in range(1,21)],columns=['X','Y','Z'])
 df2 = pd.DataFrame(list_2,index=[str(i).zfill(1) for i in range(21,41)],columns=['X','Y','Z'])
@@ -179,6 +181,7 @@ dfa.to_excel(writer, sheet_name="CAŁOŚĆ")
 dfy = [df1, df2, df3, df4, df5, df6, df7, df8, df9]
 dfy2 = [df11, df22, df33, df44, df55, df66, df77, df88, df99]
 
+# creating list of sheetnames in excel with right formation
 sheet_names = []
 for name in dfy:
     sheet_names.append(str(np.round(name.iloc[0]['Z'] * -1, 3)))
@@ -187,6 +190,7 @@ for num, h in enumerate(dfy):
     h.to_excel(writer, sheet_name="wysokość " + sheet_names[num])
     dfy2[num].to_excel(writer, sheet_name="wysokość " + sheet_names[num], startrow=21, startcol=0)
 
+# creating workbooks and worksheets
 workbook1 = writer.book
 workbook2 = writer.book
 workbook3 = writer.book
@@ -208,17 +212,19 @@ worksheet7 = writer.sheets["wysokość " + sheet_names[6]]
 worksheet8 = writer.sheets["wysokość " + sheet_names[7]]
 worksheet9 = writer.sheets["wysokość " + sheet_names[8]]
 
+# formatting with right decimal praces
 workbooki = [workbook1, workbook2, workbook3, workbook4, workbook5, workbook6, workbook7, workbook8, workbook9]
 for g in workbooki:
     format = g.add_format({'num_format': '#,##0.0000'})
 
-
+# excel columns manipulation
 working = [worksheet1, worksheet2, worksheet3, worksheet4, worksheet5, worksheet6, worksheet7, worksheet8, worksheet9]
 for k in working:
     k.set_column('B:I', None)
     k.set_column('F:F', 25)
     k.set_column('I:I', 25)
 
+# poviding right script infomration in excel to generate vertices
 for i in working:
     for b in range(1, 42):
         if b == 21:
@@ -390,7 +396,7 @@ for num in range(7):
     worksheet0.write(num + 72 + 56, 15, str(num + 56 + 10300) + str(" npa ") + str(cells[num]+18) + str(" npe ") + str(cells[num+1]+17) + str(" sno ") + str(s))
     worksheet0.write(num + 72 + 63, 15, str(num + 63 + 10300) + str(" npa ") + str(cells[num]) + str(" npe ") + str(cells[num+1]+19) + str(" sno ") + str(s))
 
-
+# the begining of SOFiSTiK teddy script
 for t in range(1, 4):
     worksheet0.write(2, t, "+prog aqua urs:1")
     worksheet0.write(3, t, "head przekroje+materialy")
@@ -445,7 +451,7 @@ for t in range(1, 4):
     worksheet0.write(717, t, "end")
 
 
-# zapisz.
+# saving xlsx file
 writer.save()
 
 
@@ -453,27 +459,37 @@ writer.save()
 #pyperclip.copy(vertices["$ Kopuła Żebrowa"].to_string(index=False))
 
 
+# now thing about I am very proud:
+# main goal is to count all length of elements generated for dome. unit is meters
+# lists of all certain domes coordinates with their correct numerating
 all_lists = np.concatenate((list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9)).tolist()
 all_lists_2 = np.concatenate((list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9)).tolist()
 
+# blank dictionares
 dic_vertices = {}
 dic_vertices_lamell = {}
 
+# execute function to create dictionares
 create_dictionary(all_lists, dic_vertices)
 create_dictionary(all_lists_2, dic_vertices_lamell)
 
+# read excel with script generating domes in SOFiSTiK
 read_excel = pd.read_excel(r"D:\Programy\z.studi\ROK 6\magister\to_count.xlsx", index_col=0)
 
 dome_1 = read_excel.iloc[:, 0].tolist()[199:499]
 dome_2 = read_excel.iloc[:, 1].tolist()[199:639]
 dome_3 = read_excel.iloc[:, 2].tolist()[199:639]
 
+# re function to search for numbers of connected elements
+# it is working cuz all elements has their own number and this knowledge allows to count distances between them
 num_vertex = re.compile(r'\d npe \d|\d npe \d\d|\d\d npe \d|\d\d npe \d\d|\d\d npe \d\d\d|\d\d\d npe \d\d|\d\d\d npe \d\d\d')
 
+#
 dome_1_list = list_of_joined_vertices(dome_1)
 dome_2_list = list_of_joined_vertices(dome_2)
 dome_3_list = list_of_joined_vertices(dome_3)
 
+# final result - total length of elements in meters
 dome_1_length = sum_of_length_count(dome_1_list, dic_vertices)
 dome_2_length = sum_of_length_count(dome_2_list, dic_vertices)
 dome_3_length = sum_of_length_count(dome_3_list, dic_vertices_lamell)
