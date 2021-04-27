@@ -17,3 +17,6 @@ In my opinion script is more stable than other FEM programs like Autodesk ROBOT.
 
 # To use sript
 Download script and xlsx files and paste to script excel paths
+
+# Lamells dome gif
+![Domes-vertices.gif](https://github.com/kamilego/Domes-vertices/blob/main/demo/Domes-vertices.gif)
