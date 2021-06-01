@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import domes_vertices as dv
 
+
 # function that zips two lists of values and their units to show in top of the bar
 def top_bar_value(res, unit):
     for rect, unit_val in zip(res, unit):
@@ -52,31 +53,3 @@ top_bar_value(res3, m_unit)
 fig.tight_layout()
 
 plt.draw()
-
-
-# import pandas as pd
-#
-# df = pd.read_excel(r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx")
-# df['New_column_tests'] = df['Unnamed: 13']
-# writer = pd.ExcelWriter(r"D:\Programy\z.studi\ROK 6\magister\cady\asd.xlsx", engine='xlsxwriter')
-# df.to_excel(writer, sheet_name='Sheet3', index=False)
-# writer.save()
-
-# from win32com.client import Dispatch
-# wkbk1 = r"D:\Programy\z.studi\ROK 6\magister\cady\asd.xlsx"
-# excel = Dispatch("Excel.Application")
-# excel.Visible = 1
-# source = excel.Workbooks.Open(wkbk1)
-# excel.Range("A1:A3").Select()
-# excel.Selection.Copy()
-# copy = excel.Workbooks.Open(wkbk1)
-# excel.Range("A6:A8").Select()
-# excel.Selection.PasteSpecial(Paste=-4163)
-# excel.Visible = False
-# excel.Application.Quit()
-
-
-import xlrd
-# import os, openpyxl
-# os.chdir(r"D:\Programy\z.programowanie\Domes-vertices")
-# wb = openpyxl.load_workbook(r"wierzcholki.xlsx")

@@ -455,21 +455,17 @@ for t in range(1, 4):
 writer.save()
 
 
-#vertices = pd.read_excel(r"D:\Programy\z.programowanie\Domes-vertices\wierzcholki.xlsx")
-#pyperclip.copy(vertices["$ Kopuła Żebrowa"].to_string(index=False))
-
-
-# now thing about I am very proud:
+# now thing about I am very proud of:
 # main goal is to count all length of elements generated for dome. unit is meters
 # lists of all certain domes coordinates with their correct numerating
 all_lists = np.concatenate((list_1, list_2, list_3, list_4, list_5, list_6, list_7, list_8, list_9)).tolist()
 all_lists_2 = np.concatenate((list2_1, list2_2, list2_3, list2_4, list2_5, list2_6, list2_7, list2_8, list2_9)).tolist()
 
-# blank dictionares
+# blank dictionaries
 dic_vertices = {}
 dic_vertices_lamell = {}
 
-# execute function to create dictionares
+# execute function to create dictionaries
 create_dictionary(all_lists, dic_vertices)
 create_dictionary(all_lists_2, dic_vertices_lamell)
 
