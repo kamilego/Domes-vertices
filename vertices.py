@@ -27,30 +27,36 @@ def changed_diction(diction, degree_dif):
     return test
 
 
+def create_diction(param):
+    ver_list = param.to_numpy()
+    ver_list = ver_list[ver_list[:, 2].argsort()]
+    dict_split = {}
+    num = 0
+    for i in range(0, len(ver_list), 20):
+        dict_split["list_"+str(num)] = ver_list[i:20+i]
+        num += 11.25
+    return dict_split
+
+
+def create_modyfied_excel(np_range_data, path, elem):
+    data = pd.DataFrame(np_range_data, columns = ["Position X", "Position Y", "Position Z"])
+    writer = pd.ExcelWriter(os.path.join(path[:-13], f"{elem}.xlsx"))
+    data.to_excel(writer, index=False)
+    writer.save()
+
+
 path = r"D:\Programy\z.studi\ROK 6\magister\vertices_new\test\vertices.xlsx"
 main_path = path[:-14]
 
 df = pd.read_excel(path)
 df = df.dropna(axis="columns")
 
-ver_list = df.to_numpy()
-ver_list = ver_list[ver_list[:, 2].argsort()]
-
-dict_split = {}
-degrees_list = np.arange(0, 91, 11.25)
-
-num = 0
-for i in range(0, len(ver_list), 20):
-    dict_split["list_"+str(num)] = ver_list[i:20+i]
-    num += 11.25
-
 list_of_dif_degree_ratio = [-2, -1, 1, 2]
 
 obj = {}
 
 for elem in list_of_dif_degree_ratio:
-    obj[str(elem)] = changed_diction(dict_split, elem)
+    obj[str(elem)] = changed_diction(create_diction(df), elem)
 
-print(obj)
-#     pd.DataFrame(test, columns = ["Position X", "Position Y", "Position Z"]).to_excel(os.path.join(main_path,f'{elem[5:]}_OUTPUT.xlsx'), index=False)
-
+for elem in obj:
+    create_modyfied_excel(obj[elem], path, elem)
