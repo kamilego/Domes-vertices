@@ -499,8 +499,4 @@ zebrowa_path = r"D:\Programy\z.studi\ROK 6\magister\all_excels\all_żebrowa_i_sz
 lamella_path = r"D:\Programy\z.studi\ROK 6\magister\all_excels\all_lamella"
 
 for x,y in zip(os.listdir(zebrowa_path)[:-1], os.listdir(lamella_path)[:-1]):
-<<<<<<< HEAD
 	execute_domes(os.path.join(zebrowa_path, x), os.path.join(lamella_path, y), x)
-=======
-	execute_domes(os.path.join(zebrowa_path, x), os.path.join(lamella_path, y), x)
->>>>>>> 15453c247b214d3e84be3425f56dc336a7edd9e9
