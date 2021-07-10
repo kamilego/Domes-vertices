@@ -176,7 +176,7 @@ def execute_domes(path1, path2, save_name):
     df99 = pd.DataFrame(list2_9,index=['161'],columns=['X','Y','Z'])
 
     # Create a Pandas Excel writer using XlsxWriter as the engine.
-    writer = pd.ExcelWriter(os.path.join("D:\Programy\z.studi\ROK 6\magister", "full_teddy_excels", (f'{save_name}')), engine='xlsxwriter')
+    writer = pd.ExcelWriter(os.path.join("D:\Programy\z.studi\ROK 6\magister", "full_teddy_excels_stick", (f'{save_name}')), engine='xlsxwriter')
 
     # Write each dataframe to a different worksheet.
     dfa.to_excel(writer, sheet_name="CAŁOŚĆ")
