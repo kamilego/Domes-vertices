@@ -70,7 +70,7 @@ def sum_of_length_count(list, diction):
     return round(sum)
 
 
-def rotate_clock_wise(list, treshold1, treshold2, rot = clockwiseangle_and_distance):
+def rotate_clock_wise(list, treshold1, treshold2, rot=clockwiseangle_and_distance):
     return np.array(sorted(list[treshold1:treshold2], key=rot))
 
 # lammel names
@@ -236,8 +236,25 @@ def execute_domes(path1, path2, save_name):
         np.dot(n, x2)
 
     # provide that list can be manipulate
-    for num in range(len(opus)):
-        opus[num] = np.multiply(opus[num], x2)
+    list_1 = np.multiply(list_1, x2)
+    list_2 = np.multiply(list_2, x2)
+    list_3 = np.multiply(list_3, x2)
+    list_4 = np.multiply(list_4, x2)
+    list_5 = np.multiply(list_5, x2)
+    list_6 = np.multiply(list_6, x2)
+    list_7 = np.multiply(list_7, x2)
+    list_8 = np.multiply(list_8, x2)
+    list_9 = np.multiply(list_9, x2)
+    list2_1 = np.multiply(list2_1, x2)
+    list2_2 = np.multiply(list2_2, x2)
+    list2_3 = np.multiply(list2_3, x2)
+    list2_4 = np.multiply(list2_4, x2)
+    list2_5 = np.multiply(list2_5, x2)
+    list2_6 = np.multiply(list2_6, x2)
+    list2_7 = np.multiply(list2_7, x2)
+    list2_8 = np.multiply(list2_8, x2)
+    list2_9 = np.multiply(list2_9, x2)
+
 
     # dataframe for excel
     dfa = pd.DataFrame(list_a)
@@ -371,9 +388,9 @@ def execute_domes(path1, path2, save_name):
 
 
     worksheet0.write(0, 1, str(" "))
-    worksheet0.write(0, 1, "$ Kopuła Żebrowa")
-    worksheet0.write(0, 2, "$ Kopuła Schwedlera")
-    worksheet0.write(0, 3, "$ Kopuła Lamella")
+    worksheet0.write(0, 1, "$ Kopula Zebrowa")
+    worksheet0.write(0, 2, "$ Kopula Schwedlera")
+    worksheet0.write(0, 3, "$ Kopula Lamella")
     worksheet0.write(0, 5, str("$ współrzędne wierzchołków lamela"))
     worksheet0.write(0, 6, str("$ współrzędne wierzchołków ż/sch"))
 
@@ -414,40 +431,40 @@ def execute_domes(path1, path2, save_name):
         worksheet0.write(6, t, "$ norma")
         worksheet0.write(7, t, "norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2")
         worksheet0.write(9, t, "$ materialy")
-        worksheet0.write(10, t, "stee no 1 type s clas " + str(steel) + " $ stal")
+        worksheet0.write(10, t, f"stee no 1 type s clas {steel} gam 0 $ stal")
         worksheet0.write(12, t, "$ przekroj poprzeczny")
-        worksheet0.write(14, t, "scit no 1  " + profile_1 + " mno 1")
+        worksheet0.write(14, t, f"scit no 1  {profile_1} mno 1")
         worksheet0.write(17, t, "end")
-        worksheet0.write(19, t, "+prog sofimshc urs:2")
+        worksheet0.write(19, t, "+prog sofimsha urs:2")
         worksheet0.write(20, t, "head geometria")
         worksheet0.write(21, t, "syst 3d")
         worksheet0.write(22, t, "echo full")
-
         worksheet0.write(26, t, "$ PUNKTY definicja")
         worksheet0.write(27, t, "=\"node \""+str("&G3"))
-        if t == 3:
-            worksheet0.write(27, t, "=\"spt no \"" + str("&F3"))
         for z in range(28, 28+160):
             worksheet0.write(z, t, str("=G")+str(z-24))
             if t == 3:
                 worksheet0.write(z, t, str("=F") + str(z - 24))
-
+        worksheet0.write(200, t, "$ element definicja")
+        if t == 1:
+            for num, elem in enumerate(zebrowa_list(), start=201):
+                worksheet0.write(num, t, elem)
+        if t == 2:
+            for num, elem in enumerate(schwedler_names(), start=201):
+                worksheet0.write(num, t, elem)
+        if t == 3:
+            for num, elem in enumerate(lammel_names(), start=201):
+                worksheet0.write(num, t, elem)
         worksheet0.write(700, t, str("end"))
         worksheet0.write(701, t, "+prog sofiload urs:4")
         worksheet0.write(702, t, "head obciazenia")
         worksheet0.write(703, t, "lc 1 dlz 1 titl obc_cw")
-        worksheet0.write(704, t, "lc 2 titl obc_skupione")
         worksheet0.write(705, t, "node no 161 type pzz p1 " + str(force))
         worksheet0.write(706, t, "end")
         worksheet0.write(708, t, "+prog ase urs:5")
         worksheet0.write(709, t, "head obliczenia")
-        worksheet0.write(710, t, "lc 1,2")
+        worksheet0.write(710, t, "lc 1")
         worksheet0.write(711, t, "end")
-        worksheet0.write(713, t, "+prog ase urs:10")
-        worksheet0.write(714, t, "head kombinacja")
-        worksheet0.write(715, t, "lc 4 dlz 1.35 titl suma")
-        worksheet0.write(716, t, "lcc 2 fact 1.5")
-        worksheet0.write(717, t, "end")
 
 
     # saving xlsx file
