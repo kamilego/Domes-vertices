@@ -10,105 +10,89 @@ import math
 #             os.makedirs(os.path.join(path, f"{num}"))
 
 
-def clockwiseangle_and_distance(point):
-    origin = [0, 0]
-    refvec = [0, 1]
-    vector = [point[0]-origin[0], point[1]-origin[1]]
-    lenvector = math.hypot(vector[0], vector[1])
-    if lenvector == 0:
-        return -math.pi, 0
-    normalized = [vector[0]/lenvector, vector[1]/lenvector]
-    dotprod = normalized[0]*refvec[0] + normalized[1]*refvec[1]
-    diffprod = refvec[1]*normalized[0] - refvec[0]*normalized[1]
-    angle = math.atan2(diffprod, dotprod)
-    if angle < 0:
-        return 2*math.pi+angle, lenvector
-    return angle, lenvector
-
-
-def coordinates(elem, start=0, end=360):
-    x_y = []
-    for degree in range(start, end, 18):
-        value = [round(elem[0]*math.cos(math.radians(degree)), 4), round(elem[0]*math.sin(math.radians(degree)), 4), elem[2]]
-        x_y.append(value)
-    return x_y
-
-
-def z_y(num, multiply=1):
-    x = round(math.sin(math.radians(num)),4)
-    z = round(math.cos(math.radians(num)),4)*multiply
-    return x, 0, z
-
-
-def vert_cord_list(dome_type, heigh):
-    len_dict = {}
-    for num in np.arange(0, 91, 90/8):
-        len_dict[num] = z_y(num, -1)
-
-    all_list = [list(len_dict[0])]
-    if dome_type == "schwedler":
-        for elem in list(len_dict.keys())[1:]:
-            all_list.extend(coordinates(len_dict[elem]))
-    else:
-        for num, elem in enumerate(list(len_dict.keys())[1:], start=1):
-            if not num % 2:
-                all_list.extend(coordinates(len_dict[elem], -9, 360-9))
-            else:
-                all_list.extend(coordinates(len_dict[elem]))
-    all_list.sort(key=lambda x: x[2], reverse=True)
-    for elem in all_list:
-        for i in range(len(elem)):
-            elem[i] = round(elem[i]*heigh, 4)
-    return all_list
-
-def print_list(heigh, vert_list):
+def print_list(vert_list):
     for i in range(len(vert_list)):
         vert_list[i] = str(vert_list[i]).replace("[", "").replace("]","")
 
-    for i in range(len(vert_list[:20])):
-        vert_list[i] = vert_list[i] + " fix pp"
-
     for num, i in enumerate(vert_list, start=1):
-        print(num, i)
+        if num == 1:
+            print("node", num, i, "fix pp")
+        elif 1 < num < 21:
+            print(num, i, "fix pp")
+        else:
+            print(num, i)
+
+
+def create_domes(height, dome_type):
+    def vert_cord_list(dome_type, height, param):
+        def z_y(num):
+            x = round(math.sin(math.radians(num)),4)
+            z = round(math.cos(math.radians(num)),4)*-1
+            return x, 0, z
+
+        def coordinates(elem, start=0, end=360):
+            x_y = []
+            for degree in range(start, end, 18):
+                value = [round(elem[0]*math.cos(math.radians(degree)), 4), round(elem[0]*math.sin(math.radians(degree)), 4), elem[2]]
+                x_y.append(value)
+            return x_y
+
+        len_dict = {}
+        for num in np.arange(0, 91, 90/8):
+            if num == 0.0 or num == 90.0:
+                len_dict[num] = z_y(num)
+            else:
+                len_dict[num] = z_y(num-param)
+
+        all_list = [list(len_dict[0])]
+        if dome_type == "schwedler":
+            for elem in list(len_dict.keys())[1:-1]:
+                all_list.extend(coordinates(len_dict[elem]))
+            all_list.extend(coordinates(len_dict[90]))
+        else:
+            for num, elem in enumerate(list(len_dict.keys())[1:], start=1):
+                if not num % 2:
+                    all_list.extend(coordinates(len_dict[elem], -9, 360-9))
+                else:
+                    all_list.extend(coordinates(len_dict[elem]))
+
+        all_list.sort(key=lambda x: x[2], reverse=True)
+        for elem in all_list:
+            for i in range(len(elem)):
+                elem[i] = round(elem[i]*height, 4)
+        return all_list
+    
+    dome_dict = {}
+    for num in range (-2,3):
+        dome_dict[num] = vert_cord_list(dome_type, height, num)
+    return dome_dict
+
+
+def create_changed_domes(dome_list):
+    def return_number(param):
+        param = param*2
+        if param < 20:
+            return 20
+        for num in [elem for elem in range(20, 161, 20)]:
+            if num <= param < num+20:
+                return num
+            if param > 160:
+                return 140
+
+    main_dict = {}
+    for num in range(-2,3):
+        for param in np.arange(90/8, 90, 90/8):
+            if not num == 0:
+                main_dict[f"{num}_{param}"] = dome_list[0][:return_number(param)] + dome_list[num][return_number(param):return_number(param)+20] + dome_list[0][return_number(param)+20:]
+    return main_dict
+
 
 
 HEIGHT = 10
-
-a = vert_cord_list(("schwedler"), HEIGHT)
+first_domes = create_domes(HEIGHT, "schwedler")
+first_domes_dict = create_changed_domes(first_domes)
 print()
-b = vert_cord_list(("lamell"), HEIGHT)
-
-
-def create_diction(vert_list):
-    dict_split = {}
-    num = 0
-    for i in range(0, len(vert_list), 20):
-        dict_split["list_"+str(num)] = vert_list[i:20+i]
-        num += 11.25
-    return dict_split
-
-def vert_rota(degree):
-    a1 = math.cos(math.radians(degree)) # degree for X,Y
-    a2 = math.sin(math.radians(degree)) # degree for Z
-    return a1, a2
-
-
-def vert_ratio(degree, dif, a):
-    # a = 0 == XY
-    # a = 1 == Z
-    return vert_rota(degree+dif)[a]/vert_rota(degree)[a]
-
-
-def changed_diction(diction, degree_dif):
-    for elem in list(diction.keys())[1:-1]:
-        for row in diction[elem]:
-            for num in range(3):
-                a = 0 if num < 2 else 1
-                row[num] = round(row[num]*vert_ratio(float(elem[5:]), degree_dif, a), 4)
-    return np.concatenate(np.array(list(diction.values()), dtype=object))
-
-obj = {}
-for elem in range(-2,3):
-    obj[str(elem)] = changed_diction(create_diction(a), elem)
+lamell_domes = create_domes(HEIGHT, "lamell")
+lamell_domes_dict = create_changed_domes(lamell_domes)
 
 
