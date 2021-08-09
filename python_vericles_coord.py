@@ -9,31 +9,193 @@ import math
 #         if not os.path.exists(os.path.join(path, f"{num}")):
 #             os.makedirs(os.path.join(path, f"{num}"))
 
+def lammel_names():
+    def all_names(param, sum,  a4, a5, a1=0, a2=1, a3=19):
+        lista = []
+        for num in range(param-19, param+21):
+            if num < param+1:
+                if num != param:
+                    lista.append(f"{sum} n1 {num+a1} n2 {num+a2} n3 {num+a4} mno 1 posi cent t 1")
+                    sum += 1
+                else:
+                    lista.append(f"{sum} n1 {num+a1} n2 {num-a3} n3 {num+a5} mno 1 posi cent t 1")
+                    sum += 1
+            else:
+                if num != param+1:
+                    lista.append(f"{sum} n1 {num-a4} n2 {num+a1} n3 {num-a2} mno 1 posi cent t 1")
+                    sum += 1
+                else:
+                    lista.append(f"{sum} n1 {num-a5} n2 {num+a1} n3 {num+a3} mno 1 posi cent t 1") 
+                    sum += 1
+        return lista
 
-def print_list(vert_list):
-    for i in range(len(vert_list)):
-        vert_list[i] = str(vert_list[i]).replace("[", "").replace("]","")
+    def lnames(param):
+        lista = []
+        for num in range(param+1, param+20):
+            lista.append(f"{140+num} n1 {num} n2 {1+num} n3 161 mno 1 posi cent t 1")
+        if num < 160:
+            lista.append(f"{141+num} n1 {num+1} n2 {num-18} n3 161 mno 1 posi cent t 1")
+        return lista
 
-    for num, i in enumerate(vert_list, start=1):
-        if num == 1:
-            print("node", num, i, "fix pp")
-        elif 1 < num < 21:
-            print(num, i, "fix pp")
+    f_list = []
+    test1 = 1
+    for num in range(20, 140, 40):
+        # fnames
+        f_list.extend(all_names(num, test1, 20, 20))
+        # snames
+        f_list.extend(all_names(num+20, test1+40, 21, 1))
+        test1 += 80
+    # fnames
+    f_list.extend(all_names(140, 341, 20, 20))
+    f_list.extend(lnames(140))
+    add_teddy_elem(f_list, "quad no ")
+    return f_list
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+def final_join(summary):
+    small_list = []
+    for num in range(141,160):
+        small_list.append(f"{summary} n1 {num} n2 {num+1} n3 161 mno 1 posi cent t 1")
+        summary += 1
+        if num == 159:
+            small_list.append(f"{summary} n1 160 n2 141 n3 161 mno 1 posi cent t 1")
+    return small_list
+
+
+def schwedler_names():
+    def final_vert_names(param, sum, a1, a2, a3, a4):
+        lista = []
+        for num in range(param, param+121, 20):
+            lista.append(f"{sum} n1 {num} n2 {num+a1} n3 {num+a2} mno 1 posi cent t 1")
+            sum += 1
+            lista.append(f"{sum} n1 {num} n2 {num+a3} n3 {num+a4} mno 1 posi cent t 1")
+            sum += 1
+        return lista
+
+    names_list = []
+    summary = 1
+    for num in range(2,19,2):
+        names_list.extend(final_vert_names(num, summary, 19, -1, 20, 19))
+        summary += 14
+        names_list.extend(final_vert_names(num, summary, 21, 20, 1, 21))
+        summary += 14
+
+    names_list.extend(final_vert_names(20, summary, 1, 20, -19, 1))
+    summary += 14
+    names_list.extend(final_vert_names(20, summary, 20, 19, 19, -1))
+    summary += 14
+
+    names_list.extend(final_join(summary))
+    add_teddy_elem(names_list, "quad no ")
+    return names_list
+
+def zebrowa_list():
+    def zebrowa_poles(param, sum):
+        lista = []
+        for num in range(param, 141):
+            if not num % 20 ==0:
+                lista.append(f"{sum} n1 {num} n2 {num+1} n3 {num+21} n4 {num+20} mno 1 posi cent t 1")
+                sum +=1
+            else:
+                lista.append(f"{sum} n1 {num} n2 {num-19} n3 {num+1} n4 {num+20} mno 1 posi cent t 1")
+                sum +=1
+        return [lista, sum]
+    
+    f_list = zebrowa_poles(1, 1)
+    f_list[0].extend(final_join(zebrowa_poles(1, 1)[1]))
+    add_teddy_elem(f_list[0], "quad no ")
+    return f_list[0]
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+def dome_join(param, count, impr, step, plus, sp1, sp2, sp3, sp4):
+    lista = []
+    for num in range(param, param+impr, step):
+        if num < param+plus:
+            lista.append(f"{count} na {num} ne {num+sp1} ncs 1")
+            count += 1
         else:
-            print(num, i)
+            lista.append(f"{count} na {num} ne {(num-sp2)*sp3+161*sp4} ncs 1")
+    return lista
+
+def add_teddy_elem(dome_list, elem_type):
+    for i in range(len(dome_list)):
+        if i == 0:
+            dome_list[0] = f"{elem_type} {dome_list[0]}"
+
+def domes_sticks(param, count, add, step, var, sp1, sp2):
+    lista = []
+    for num in range(param, param+add, step):
+        if num < param+var:
+            lista.append(f"{count} na {num} ne {num+20+sp1} ncs 1")
+            count += 1
+            lista.append(f"{count} na {num+20+sp1} ne {num+step} ncs 1")
+            count += 1
+        else:
+            lista.append(f"{count} na {num} ne {num+sp2} ncs 1")
+            count += 1
+            lista.append(f"{count} na {num+sp2} ne {num-add+1} ncs 1")
+            count += 1
+    return lista
+
+
+def full_lamell():
+    check_list = []
+    for num, param in enumerate([num for num in range(1, 142, 20)], start=1):
+        if param < 141:
+            if num % 2 == 0:
+                check_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=1, sp2=1))
+            else:
+                check_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=0, sp2=20))
+        else:
+            for num in range(param, param+20):
+                check_list.append(f"{num+140} na {num} ne 161 ncs 1")
+    for num in range(21, 142, 20):
+        check_list.extend(dome_join(num, count=280+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
+    add_teddy_elem(check_list, "beam no ")
+    return check_list
+
+
+def full_schwedler():
+    lista = []
+    for num in range(1, 21):
+        lista.extend(dome_join(num, count=-7+num*8, impr=141, step=20, plus=121, sp1=20, sp2=161, sp3=0, sp4=1))
+    for num in range(21, 142, 20):
+        lista.extend(dome_join(num, count=140+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
+    for num, param in enumerate([num for num in range(2, 141, 20)], start=1):
+        lista.extend(domes_sticks(param, 299+param, add=19, step=2, var=17, sp1=1, sp2=1))
+    add_teddy_elem(lista, "beam no ")
+    return lista
+
+
+lamela = full_lamell()
+schwedler = full_schwedler()
+zebrowa = schwedler[:300]
+
+# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# end quads functions
+
+def change_dome_list_to_teddy(dome_list):
+    for i in range(len(dome_list)):
+        dome_list[i] = str(dome_list[i]).replace("[", "").replace("]","")
+        dome_list[i] = f"{i+1} {dome_list[i]}"
+        if i == 0:
+            dome_list[i] = f"node {i+1} {dome_list[i]} fix pp"
+        elif 0 < i < 20:
+            dome_list[i] = f"{i+1} {dome_list[i]} fix pp"
+    return dome_list
 
 
 def create_domes(height, dome_type):
     def vert_cord_list(dome_type, height, param):
-        def z_y(num):
-            x = round(math.sin(math.radians(num)),4)
-            z = round(math.cos(math.radians(num)),4)*-1
+        def z_y(num, length=1, multiply=-1):
+            x = round(length*math.sin(math.radians(num)),4)
+            z = round(length*math.cos(math.radians(num)),4)*multiply
             return x, 0, z
 
         def coordinates(elem, start=0, end=360):
             x_y = []
             for degree in range(start, end, 18):
-                value = [round(elem[0]*math.cos(math.radians(degree)), 4), round(elem[0]*math.sin(math.radians(degree)), 4), elem[2]]
+                value = [z_y(degree, elem[0], 1)[2], z_y(degree, elem[0], 1)[0], elem[2]]
                 x_y.append(value)
             return x_y
 
@@ -82,8 +244,9 @@ def create_changed_domes(dome_list):
     main_dict = {}
     for num in range(-2,3):
         for param in np.arange(90/8, 90, 90/8):
+            val = return_number(param)
             if not num == 0:
-                main_dict[f"{num}_{param}"] = dome_list[0][:return_number(param)] + dome_list[num][return_number(param):return_number(param)+20] + dome_list[0][return_number(param)+20:]
+                main_dict[f"{num}_{param}"] = dome_list[0][:val] + dome_list[num][val:val+20] + dome_list[0][val+20:]
     return main_dict
 
 
@@ -96,3 +259,98 @@ lamell_domes = create_domes(HEIGHT, "lamell")
 lamell_domes_dict = create_changed_domes(lamell_domes)
 
 
+
+def all_script(Name, Diameter, Thinness, vertices_coord, beam_elems, quad_elems):
+    text = f"""$ Dome {Name}
+            +prog aqua urs:1
+            head Cross-sections & Materials
+            echo full
+            $ Standars/normes
+            norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2
+            $ Materials
+            stee no 1 type s clas 235 gam 0 $ stal
+            $ Cross-section
+            scit no 1  d {Diameter} t {Thinness} mno 1
+            end
+            +prog sofimsha urs:2
+            head Geometry
+            syst 3d
+            echo full"""
+    "$ Verices definition"            
+    vertices_coord
+    "$ Beam definition"
+    beam_elems
+    "$ Quad definition"
+    quad_elems
+    "end"
+    load_text = f"""+prog sofiload urs:4
+            head loads
+            lc 1 dlz 1 titl constant_load
+            node no 161 type pzz p1 0.0001
+            end
+
+            +prog sofiload urs:6
+            head loads
+            lc 11 titl vertical_force
+            node no 161 type pzz p1 2513
+            end
+
+            +prog sofiload urs:3
+            head snow
+            lc 2 titl snow
+            quad from 1 to 9999 type pzz p 10
+            end
+
+            +prog ase urs:5
+            head obliczenia
+            syst prob th3
+            lc 1
+            end
+
+            +prog ase urs:7
+            head obliczenia
+            syst prob th3
+            lc 2
+            end
+
+            +prog ase urs:8
+            head obliczenia
+            syst prob th3
+            lc 11
+            end """
+
+    return text, load_text
+
+Name = f"Zebrowa"
+Diameter = f"133"
+Thinness = f"10"
+
+def prog_ase(number, load_num):
+    text = f"""+prog ase urs:{number}
+head obliczenia
+syst prob th3
+lc {load_num}
+end"""
+    return text
+
+
+text = f"""$ Dome {Name}
++prog aqua urs:1
+head Cross-sections & Materials
+echo full
+$ Standars/normes
+norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2
+$ Materials
+stee no 1 type s clas 235 gam 0 $ stal
+$ Cross-section
+scit no 1  d {Diameter} t {Thinness} mno 1
+end
++prog sofimsha urs:2
+head Geometry
+syst 3d
+echo full"""
+
+with open(r"C:\Users\default.DESKTOP-E4TLVMN\Desktop\Nowy folder\zebrowa12.txt", "w") as f:
+    f.writelines(text)
+    for i in change_dome_list_to_teddy(first_domes_dict['-2_11.25']):
+        f.writelines(f"{i}\n")
