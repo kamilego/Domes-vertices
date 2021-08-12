@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import math
+from math import sqrt
+import re
 
 
 def quad_lamell():
@@ -282,12 +284,51 @@ def end_text(vert_force, snow_force):
 {prog_ase(8, 11)}"""
     return load_text
 
+
+def list_of_joined_vertices(dome_list):
+    num_vertex = re.compile(r'\d{1,3} ne \d{1,3}')
+    ver_list = []
+    for elem in dome_list:
+        ver_list.append((num_vertex.findall(elem)[0].replace(" ne", "")).split(" "))
+    return ver_list
+
+
+def counting(diction, elem):
+    result = 0
+    for i in range(3):
+        result += (diction[int(elem[0])][i] - diction[int(elem[1])][i]) ** 2
+    return result
+
+
+def sum_of_length_count(list, diction):
+    sum = 0
+    for elem in list:
+        sum += sqrt(counting(diction, elem))
+    return round(sum)
+
+
+def coord_dict(dict_list, elems):
+	a1 = {}
+	for num, elem in enumerate(dict_list, start=1):
+		a1[num] = elem
+	result = sum_of_length_count(elems, a1)
+	return result
+
+
+def test_length(diction, type_elems):
+	test = {}
+	for key in diction:
+		test[key] = coord_dict(diction[key], list_of_joined_vertices(type_elems))
+	return test
+
+
 def create_dat(dome_name, coord, beam_elem, quad_elem):
     def write_elems(elem_list, beg_text):
         f.writelines(f"{beg_text}\n")
         for i in elem_list:
             f.writelines(f"{i}\n")
 
+    value = test_length(coord, beam_elem)
     if not os.path.exists(f"{dome_name}"):
         os.makedirs(f"{dome_name}")
     for key in coord.keys():
@@ -297,6 +338,7 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
             write_elems(beam_elem, "$ Beam definition")
             write_elems(quad_elem, "$ Quad definition") 
             f.writelines(end_text(vert_force, snow_force))
+    return value
 
 
 HEIGHT = 10         # m
@@ -306,6 +348,6 @@ Thinness = 10       # mm
 vert_force = 2513   # kN
 snow_force = 10     # kN
 
-create_dat("zebrowa", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler()[:300], quad_zebrowa())
-create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
-create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
+zebrowa_total_length = create_dat("zebrowa", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler()[:300], quad_zebrowa())
+schwedler_total_length = create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
+lamell_total_length = create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
