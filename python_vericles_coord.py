@@ -179,14 +179,14 @@ def change_dome_list_to_teddy(dome_list):
 def create_domes(height, dome_type):
     def vert_cord_list(dome_type, height, param):
         def z_y(num, length=1, multiply=-1):
-            x = round(length*math.sin(math.radians(num)),4)
+            y = round(length*math.sin(math.radians(num)),4)
             z = round(length*math.cos(math.radians(num)),4)*multiply
-            return x, 0, z
+            return 0, y, z
 
         def coordinates(elem, start=0, end=360):
             x_y = []
             for degree in range(start, end, 18):
-                value = [z_y(degree, elem[0], 1)[2], z_y(degree, elem[0], 1)[0], elem[2]]
+                value = [z_y(degree, elem[1], 1)[2], z_y(degree, elem[1], 1)[1], elem[2]]
                 x_y.append(value)
             return x_y
 
