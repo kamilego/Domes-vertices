@@ -11,39 +11,31 @@ def quad_lamell():
         for num in range(param-19, param+21):
             if num < param+1:
                 if num != param:
-                    lista.append(f"{sum} n1 {num+a1} n2 {num+a2} n3 {num+a4} mno 1 posi cent t 1")
+                    lista.append(f"{sum} n1 {num+a1} n2 {num+a4} n3 {num+a2} mno 1 posi cent t 1")
                     sum += 1
                 else:
-                    lista.append(f"{sum} n1 {num+a1} n2 {num-a3} n3 {num+a5} mno 1 posi cent t 1")
+                    lista.append(f"{sum} n1 {num+a1} n2 {num+a5} n3 {num-a3} mno 1 posi cent t 1")
                     sum += 1
             else:
                 if num != param+1:
-                    lista.append(f"{sum} n1 {num-a4} n2 {num+a1} n3 {num-a2} mno 1 posi cent t 1")
+                    lista.append(f"{sum} n1 {num-a4} n2 {num-a2} n3 {num+a1} mno 1 posi cent t 1")
                     sum += 1
                 else:
-                    lista.append(f"{sum} n1 {num-a5} n2 {num+a1} n3 {num+a3} mno 1 posi cent t 1") 
+                    lista.append(f"{sum} n1 {num-a5} n2 {num+a3} n3 {num+a1} mno 1 posi cent t 1") 
                     sum += 1
-        return lista
-
-    def lnames(param):
-        lista = []
-        for num in range(param+1, param+20):
-            lista.append(f"{140+num} n1 {num} n2 {1+num} n3 161 mno 1 posi cent t 1")
-        if num < 160:
-            lista.append(f"{141+num} n1 {num+1} n2 {num-18} n3 161 mno 1 posi cent t 1")
         return lista
 
     f_list = []
-    test1 = 1
+    summary = 1
     for num in range(20, 140, 40):
         # fnames
-        f_list.extend(all_names(num, test1, 20, 20))
+        f_list.extend(all_names(num, summary, 20, 20))
         # snames
-        f_list.extend(all_names(num+20, test1+40, 21, 1))
-        test1 += 80
+        f_list.extend(all_names(num+20, summary+40, 21, 1))
+        summary += 80
     # fnames
-    f_list.extend(all_names(140, 341, 20, 20))
-    f_list.extend(lnames(140))
+    f_list.extend(all_names(140, 241, 20, 20))
+    f_list.extend(final_join(281))
     add_teddy_elem(f_list, "quad no")
     return f_list
 
@@ -51,10 +43,10 @@ def quad_lamell():
 def final_join(summary):
     small_list = []
     for num in range(141,160):
-        small_list.append(f"{summary} n1 {num} n2 {num+1} n3 161 mno 1 posi cent t 1")
+        small_list.append(f"{summary} n1 {num} n2 161 n3 {num+1} mno 1 posi cent t 1")
         summary += 1
         if num == 159:
-            small_list.append(f"{summary} n1 160 n2 141 n3 161 mno 1 posi cent t 1")
+            small_list.append(f"{summary} n1 160 n2 161 n3 141 mno 1 posi cent t 1")
     return small_list
 
 
@@ -62,9 +54,9 @@ def quad_schwedler():
     def final_vert_names(param, sum, a1, a2, a3, a4):
         lista = []
         for num in range(param, param+121, 20):
-            lista.append(f"{sum} n1 {num} n2 {num+a1} n3 {num+a2} mno 1 posi cent t 1")
+            lista.append(f"{sum} n1 {num} n2 {num+a2} n3 {num+a1} mno 1 posi cent t 1")
             sum += 1
-            lista.append(f"{sum} n1 {num} n2 {num+a3} n3 {num+a4} mno 1 posi cent t 1")
+            lista.append(f"{sum} n1 {num} n2 {num+a4} n3 {num+a3} mno 1 posi cent t 1")
             sum += 1
         return lista
 
@@ -90,10 +82,10 @@ def quad_zebrowa():
         lista = []
         for num in range(param, 141):
             if not num % 20 ==0:
-                lista.append(f"{sum} n1 {num} n2 {num+1} n3 {num+21} n4 {num+20} mno 1 posi cent t 1")
+                lista.append(f"{sum} n1 {num} n2 {num+20} n3 {num+21} n4 {num+1} mno 1 posi cent t 1")
                 sum +=1
             else:
-                lista.append(f"{sum} n1 {num} n2 {num-19} n3 {num+1} n4 {num+20} mno 1 posi cent t 1")
+                lista.append(f"{sum} n1 {num} n2 {num+20} n3 {num+1} n4 {num-19} mno 1 posi cent t 1")
                 sum +=1
         return [lista, sum]
     
@@ -178,7 +170,7 @@ def change_dome_list_to_teddy(dome_list):
 
 def create_domes(height, dome_type):
     def vert_cord_list(dome_type, height, param):
-        def z_y(num, length=1, multiply=-1):
+        def y_z(num, length=1, multiply=-1):
             y = round(length*math.sin(math.radians(num)),4)
             z = round(length*math.cos(math.radians(num)),4)*multiply
             return 0, y, z
@@ -186,16 +178,16 @@ def create_domes(height, dome_type):
         def coordinates(elem, start=0, end=360):
             x_y = []
             for degree in range(start, end, 18):
-                value = [z_y(degree, elem[1], 1)[2], z_y(degree, elem[1], 1)[1], elem[2]]
+                value = [y_z(degree, elem[1], 1)[2], y_z(degree, elem[1], 1)[1], elem[2]]
                 x_y.append(value)
             return x_y
 
         len_dict = {}
         for num in np.arange(0, 91, 90/8):
             if num == 0.0 or num == 90.0:
-                len_dict[num] = z_y(num)
+                len_dict[num] = y_z(num)
             else:
-                len_dict[num] = z_y(num-param)
+                len_dict[num] = y_z(num-param)
 
         all_list = [list(len_dict[0])]
         if dome_type.lower() == "schwedler" or dome_type.lower() == "zebrowa":
