@@ -99,10 +99,10 @@ def dome_join(param, count, impr, step, plus, sp1, sp2, sp3, sp4):
     lista = []
     for num in range(param, param+impr, step):
         if num < param+plus:
-            lista.append(f"{count} na {num} ne {num+sp1} ncs 1")
+            lista.append(f"{count} na {num} ne {num+sp1} ncs 1 div 5")
             count += 1
         else:
-            lista.append(f"{count} na {num} ne {(num-sp2)*sp3+161*sp4} ncs 1")
+            lista.append(f"{count} na {num} ne {(num-sp2)*sp3+161*sp4} ncs 1 div 5")
     return lista
 
 def add_teddy_elem(dome_list, elem_type):
@@ -114,14 +114,14 @@ def domes_sticks(param, count, add, step, var, sp1, sp2):
     lista = []
     for num in range(param, param+add, step):
         if num < param+var:
-            lista.append(f"{count} na {num} ne {num+20+sp1} ncs 1")
+            lista.append(f"{count} na {num} ne {num+20+sp1} ncs 1 div 5")
             count += 1
-            lista.append(f"{count} na {num+20+sp1} ne {num+step} ncs 1")
+            lista.append(f"{count} na {num+20+sp1} ne {num+step} ncs 1 div 5")
             count += 1
         else:
-            lista.append(f"{count} na {num} ne {num+sp2} ncs 1")
+            lista.append(f"{count} na {num} ne {num+sp2} ncs 1 div 5")
             count += 1
-            lista.append(f"{count} na {num+sp2} ne {num-add+1} ncs 1")
+            lista.append(f"{count} na {num+sp2} ne {num-add+1} ncs 1 div 5")
             count += 1
     return lista
 
@@ -136,7 +136,7 @@ def beam_lamell():
                 check_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=0, sp2=20))
         else:
             for num in range(param, param+20):
-                check_list.append(f"{num+140} na {num} ne 161 ncs 1")
+                check_list.append(f"{num+140} na {num} ne 161 ncs 1 div 5")
     for num in range(21, 142, 20):
         check_list.extend(dome_join(num, count=280+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
     add_teddy_elem(check_list, "beam no")
@@ -158,14 +158,15 @@ def beam_schwedler():
 # end quads functions
 
 def change_dome_list_to_teddy(dome_list):
-    for i in range(len(dome_list)):
-        dome_list[i] = str(dome_list[i]).replace("[", "").replace("]","")
-        dome_list[i] = f"{i+1} {dome_list[i]}"
+    dome_list_copy = dome_list.copy()
+    for i in range(len(dome_list_copy)):
+        dome_list_copy[i] = str(dome_list_copy[i]).replace("[", "").replace("]","")
+        dome_list_copy[i] = f"{i+1} {dome_list_copy[i]}"
         if i == 0:
-            dome_list[i] = f"node {dome_list[i]} fix pp"
+            dome_list_copy[i] = f"node {dome_list_copy[i]} fix pp"
         elif 0 < i < 20:
-            dome_list[i] = f"{dome_list[i]} fix pp"
-    return dome_list
+            dome_list_copy[i] = f"{dome_list_copy[i]} fix pp"
+    return dome_list_copy
 
 
 def create_domes(height, dome_type):
@@ -256,8 +257,9 @@ $ Standars/normes
 norm dc en ndc 1993-2005 coun 00 unit 5  $ unit sets AQUA-pomoc strona 3-2
 $ Materials
 stee no 1 type s clas {Steel} gam 0 $ stal
+stee no 999 type s clas 235
 $ Cross-section
-scit no 1  d {Diameter} t {Thinness} mno 1
+scit no 1  d {Diameter} t {Thinness} mno 999
 end
 +prog sofimsha urs:2
 head Geometry
@@ -266,15 +268,53 @@ echo full
 """
     return text
 
-def end_text(vert_force, snow_force): 
+def end_text(vert_force, diction): 
     load_text = f"""end\n
 {prog_sofiload(3, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
 {prog_sofiload(4, 11, "vertical_force", f"node no 161 type pzz p1 {vert_force}")}
-{prog_sofiload(5, 2, "snow", f"quad from 1 to 9999 type pzz p {snow_force}")}
-{prog_ase(6, 1)}
-{prog_ase(7, 2)}
-{prog_ase(8, 11)}"""
+{prog_sofiload(5, 2, "SNOW_1", f"{snow_load(diction, 61, 1)}".replace(",", ""))}
+{prog_sofiload(6, 3, "SNOW_2", f"{snow_load(diction, 71, 2)}".replace(",", ""))}
+{prog_ase(7, 1)}
+{prog_ase(8, 11)}
+{prog_ase(9, 2)}
+{prog_ase(10, 3)}"""
     return load_text
+
+
+def snow_load(diction, no_side, multiply):
+    def force_snow_load(diction, number, load_1, load_2, a1, a2, a3, a4, a5, a6):
+        def area_load_string(diction, num, load_1, load_2, param1, param2, param3, area_type1, area_type2):
+            def change_string(string):
+                string = str(string).replace("[", "").replace("]", "")
+                return string
+            text = f"""area ref qgrp type pzz p1 {load_1} x1 {change_string(diction[num-1])} $$
+                p2 {load_1} x2 {change_string(diction[num-param1])} $$
+                p3 {load_2} x3 {change_string(diction[(num+param2)*area_type1-(1*area_type2)])} $$
+                p4 {load_2} x4 {change_string(diction[num+param3])}\n"""
+            if area_type1 == 1:
+                return text
+            else:
+                text = text[:len(text)-text[::-1].index("$$")-2] + "\n"
+                return text
+        lista = []
+        for num in range(number, number+10):
+            if num not in [num for num in range(80, 161, 20)]:
+                lista.append(area_load_string(diction, num, load_1, load_2, a1, a3, a4, a5, a6))
+            else:
+                lista.append(area_load_string(diction, num, load_1, load_2, a2, a1, a4, a5, a6))
+        return lista
+
+    tops_values = []
+    v = [0, 0.1663, 0.3689, 0.6 , 0.3059]
+    values = [val*multiply for val in v]
+    levels = [num for num in range(no_side, no_side*2+1, 20)]
+    for num, elem in enumerate(levels):
+        tops_values.append([elem, values[num], values[num+1]])
+    lista = []
+    for elem in tops_values:
+        lista.extend(force_snow_load(diction, elem[0], elem[1], elem[2], 0, 20, 20, 19, 1, 0))
+    lista.extend(force_snow_load(diction, no_side+80, 0.3059*multiply, 0, 0, 20, 0, 0, 0, 1))
+    return ",".join(lista).replace("[", "").replace("]","")
 
 
 def list_of_joined_vertices(dome_list):
@@ -328,8 +368,8 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
             f.writelines(start_text(dome_name, Steel, Diameter, Thinness))
             write_elems(change_dome_list_to_teddy(coord[key]), "$ Verices definition")
             write_elems(beam_elem, "$ Beam definition")
-            write_elems(quad_elem, "$ Quad definition") 
-            f.writelines(end_text(vert_force, snow_force))
+            write_elems(quad_elem, "$ Quad definition")
+            f.writelines(end_text(vert_force, coord[key]))
     return value
 
 
@@ -339,6 +379,7 @@ Diameter = 133      # mm
 Thinness = 10       # mm
 vert_force = 2513   # kN
 snow_force = 10     # kN
+
 
 zebrowa_total_length = create_dat("zebrowa", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler()[:300], quad_zebrowa())
 schwedler_total_length = create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
