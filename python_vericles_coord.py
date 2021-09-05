@@ -317,6 +317,26 @@ def snow_load(diction, no_side, multiply):
     return ",".join(lista).replace("[", "").replace("]","")
 
 
+def change_string(string):
+    string = str(string).replace("[", "").replace("]", "")
+    return string
+
+
+def lammel(diction, num, load_1, load_2, param):
+    text = f"""area ref qgrp type pzz p1 {load_1} x1 {change_string(diction[num-1])} $$
+        p2 {load_1} x2 {change_string(diction[num])} $$
+        p3 {load_2} x3 {change_string(diction[num+param])}"""
+    return text
+
+
+def load_lamell(diction, node, step, load_1, load_2, p1, p2, p3, p4):
+    for num in range(node, node+step):
+        print(lammel(diction, num+p1, load_2, load_1, p3))
+        if num < node+9:
+            print(lammel(diction, num+p2, load_1, load_2, p4))
+
+
+
 def list_of_joined_vertices(dome_list):
     num_vertex = re.compile(r'\d{1,3} ne \d{1,3}')
     ver_list = []
