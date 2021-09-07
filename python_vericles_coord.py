@@ -81,7 +81,7 @@ def quad_zebrowa():
     def zebrowa_poles(param, sum):
         lista = []
         for num in range(param, 141):
-            if not num % 20 ==0:
+            if not num % 20 == 0:
                 lista.append(f"{sum} n1 {num} n2 {num+20} n3 {num+21} n4 {num+1} mno 1 posi cent t 1")
                 sum +=1
             else:
@@ -268,25 +268,96 @@ echo full
 """
     return text
 
-def end_text(vert_force, diction): 
-    load_text = f"""end\n
-{prog_sofiload(3, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
+
+def change_string(string):
+    string = str(string).replace("[", "").replace("]", "").replace("'", "").replace(r"\\", r"\n")
+    return string
+
+
+def change_direction(elem):
+    return [elem[0], 0, elem[2]]
+
+
+def lammel(dict_list, num, load_1, load_2, param1, param2, param3, state=1):
+    if state == 1:
+        state = change_string(dict_list[num+param1])
+    else:
+        state = change_string(state)
+    text = f"""area ref qgrp type pzz p1 {load_1} x1 {state} $$
+        p2 {load_1} x2 {change_string(dict_list[num+param2])} $$
+        p3 {load_2} x3 {change_string(dict_list[num+param3])}"""
+    return text
+
+
+def load_lamell(dict_list, node, step, load_1, load_2, p1, p2, p3, p4):
+    load_list = []
+    for num in range(node, node+step):
+        load_list.append(lammel(dict_list, num+p1, load_2, load_1, -1, 0, p3))
+        if num < node+9:
+            load_list.append(lammel(dict_list, num+p2, load_1, load_2, -1, 0, p4))
+    return load_list
+
+
+def added_vert(dict_list, num, l1, l2, l3):
+    load_list = []
+    load_list.append(lammel(dict_list, num, l1, l2, 38, 19, -1))  # 160, 141
+    load_list.append(lammel(dict_list, num, l2, l3, -1, 18, -2))  # 121, 140, 120
+    load_list.append(lammel(dict_list, num, l2, l1, -1, 18, 38))  # 121, 140, 160
+    load_list.append(lammel(dict_list, num, l3, l2, -21, -2, -1)) # 121, 101, 120
+    return load_list
+
+
+def top_load(dict_list, num, l1, l2):
+    param = 19 if num == 141 else 9
+    load_list = []
+    for elem in range(num, num+10):
+        if elem == 160:
+            load_list.append(lammel(dict_list, elem, l1, l2, -1, -20, 0))
+        else:
+            load_list.append(lammel(dict_list, elem, l1, l2, -1, 0, param)) # 141, 142, 161
+            param -= 1
+    return load_list
+
+
+def unique_quads(dict_list, num, load_1, load_2, load_3, step):
+    load_list = []
+    for _ in range(1):
+        load_list.append(lammel(dict_list, num, load_1, load_2, -1, step, 19, change_direction(dict_list[num-1])))
+        load_list.append(lammel(dict_list, num, load_1, load_3, -1, step, -21, change_direction(dict_list[num-1])))
+    return load_list
+
+    
+def lamell_snow_load(dict_list, num, step, l1, l2, l3, l4, left):
+    load_list = []
+    # DRUGA STRONA
+    side = 0 if left == -1 else -1
+    load_list.extend(load_lamell(dict_list, num, step, l4, 0, 0, 21, 20, -21))
+    load_list.extend(load_lamell(dict_list, num+21, step, l4, l3, 19, 0, -20, 19))
+    load_list.extend(load_lamell(dict_list, num+40, step, l2, l3, 0, 21, 20, -21))
+    load_list.extend(load_lamell(dict_list, num+61, step, l2, l1, 19, 0, -20, 19))
+    load_list.extend(unique_quads(dict_list, 131, l2, l1, l3, left))
+    load_list.extend(unique_quads(dict_list, 91, l4, l3, 0, left))
+    load_list.extend(unique_quads(dict_list, 121, l2, l1, l3, side))
+    load_list.extend(unique_quads(dict_list, 81, l4, l3, 0, side))
+    load_list.extend(top_load(dict_list, num+80, l1, 0))
+    if left != -1:
+        load_list.extend(added_vert(dict_list, 121, l1, l2, l3))
+        load_list.extend(added_vert(dict_list, 81, l3, l4, 0))
+    return load_list
+
+
+def end_text(vert_force):
+    load_text = f"""{prog_sofiload(3, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
 {prog_sofiload(4, 11, "vertical_force", f"node no 161 type pzz p1 {vert_force}")}
-{prog_sofiload(5, 2, "SNOW_1", f"{snow_load(diction, 61, 1)}".replace(",", ""))}
-{prog_sofiload(6, 3, "SNOW_2", f"{snow_load(diction, 71, 2)}".replace(",", ""))}
 {prog_ase(7, 1)}
 {prog_ase(8, 11)}
-{prog_ase(9, 2)}
-{prog_ase(10, 3)}"""
+{prog_ase(9, 2)}"""
     return load_text
 
 
 def snow_load(diction, no_side, multiply):
     def force_snow_load(diction, number, load_1, load_2, a1, a2, a3, a4, a5, a6):
         def area_load_string(diction, num, load_1, load_2, param1, param2, param3, area_type1, area_type2):
-            def change_string(string):
-                string = str(string).replace("[", "").replace("]", "")
-                return string
             text = f"""area ref qgrp type pzz p1 {load_1} x1 {change_string(diction[num-1])} $$
                 p2 {load_1} x2 {change_string(diction[num-param1])} $$
                 p3 {load_2} x3 {change_string(diction[(num+param2)*area_type1-(1*area_type2)])} $$
@@ -314,7 +385,7 @@ def snow_load(diction, no_side, multiply):
     for elem in tops_values:
         lista.extend(force_snow_load(diction, elem[0], elem[1], elem[2], 0, 20, 20, 19, 1, 0))
     lista.extend(force_snow_load(diction, no_side+80, 0.3059*multiply, 0, 0, 20, 0, 0, 0, 1))
-    return ",".join(lista).replace("[", "").replace("]","")
+    return lista
 
 
 def list_of_joined_vertices(dome_list):
@@ -354,11 +425,22 @@ def test_length(diction, type_elems):
 	return test
 
 
+def snow_loads(diction_list, name):
+    load_snow_list = []
+    if name == "lamell":
+        load_snow_list.extend(lamell_snow_load(diction_list, 71, 9, 0.6118, 1.2, 0.7378, 0.3326, 0))
+        load_snow_list.extend(lamell_snow_load(diction_list, 61, 10, 0.3059, 0.6, 0.3689, 0.1663, -1))
+    else:
+        load_snow_list.extend(snow_load(diction_list, 61, 1))
+        load_snow_list.extend(snow_load(diction_list, 71, 2))
+    return load_snow_list
+
 def create_dat(dome_name, coord, beam_elem, quad_elem):
-    def write_elems(elem_list, beg_text):
+    def write_elems(elem_list, beg_text, end_text=""):
         f.writelines(f"{beg_text}\n")
         for i in elem_list:
             f.writelines(f"{i}\n")
+        f.writelines(f"{end_text}\n")
 
     value = test_length(coord, beam_elem)
     if not os.path.exists(f"{dome_name}"):
@@ -369,13 +451,14 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
             write_elems(change_dome_list_to_teddy(coord[key]), "$ Verices definition")
             write_elems(beam_elem, "$ Beam definition")
             write_elems(quad_elem, "$ Quad definition")
-            f.writelines(end_text(vert_force, coord[key]))
+            write_elems(snow_loads(coord[key], dome_name),"end\n$ Quad definition\n+prog sofiload urs:4\nhead loads\nlc 2 titl snow", "end\n")
+            f.writelines(end_text(vert_force))
     return value
 
 
 HEIGHT = 10         # m
 Steel = 235         # MPa
-Diameter = 133      # mm
+Diameter = 133      # mma
 Thinness = 10       # mm
 vert_force = 2513   # kN
 snow_force = 10     # kN
@@ -385,91 +468,3 @@ zebrowa_total_length = create_dat("zebrowa", create_changed_domes(create_domes(H
 schwedler_total_length = create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
 lamell_total_length = create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
 
-
-def change_string(string):
-    string = str(string).replace("[", "").replace("]", "")
-    return string
-
-def change_direction(elem):
-    return [elem[0], 0, elem[2]]
-
-def lammel(diction, num, load_1, load_2, param1, param2, param3, state=1):
-    if state == 1:
-        state = change_string(diction[num+param1])
-    else:
-        state = change_string(state)
-    text = f"""area ref qgrp type pzz p1 {load_1} x1 {state} $$
-        p2 {load_1} x2 {change_string(diction[num+param2])} $$
-        p3 {load_2} x3 {change_string(diction[num+param3])}"""
-    return text
-
-
-def load_lamell(diction, node, step, load_1, load_2, p1, p2, p3, p4):
-    for num in range(node, node+step):
-        print(lammel(diction, num+p1, load_2, load_1, -1, 0, p3))
-        if num < node+9:
-            print(lammel(diction, num+p2, load_1, load_2, -1, 0, p4))
-
-
-def added_vert(diction, num, l1, l2, l3):
-    print(lammel(diction, num, l1, l2, 38, 19, -1))  # 160, 141
-    print(lammel(diction, num, l2, l3, -1, 18, -2))  # 121, 140, 120
-    print(lammel(diction, num, l2, l1, -1, 18, 38))  # 121, 140, 160
-    print(lammel(diction, num, l3, l2, -21, -2, -1)) # 121, 101, 120
-
-
-def top_load(diction, num, l1, l2):
-    if num == 141:
-        param = 19
-    else:
-        param = 9
-    for elem in range(num, num+10):
-        if elem == 160:
-            print(lammel(diction, elem, l1, l2, -1, -20, 0))
-        else:
-            print(lammel(diction, elem, l1, l2, -1, 0, param)) # 141, 142, 161
-            param -= 1
-
-
-def unique_quads(diction, num, load_1, load_2, load_3, step):
-    for _ in range(1):
-        print(lammel(diction, num, load_1, load_2, -1, step, 19, change_direction(diction[num-1])))
-        print(lammel(diction, num, load_1, load_3, -1, step, -21, change_direction(diction[num-1])))
-
-
-def quads_lamell_load(diction, num):
-    step=10
-    for _ in range(2):
-        load_lamell(diction, num, step, 0.1663, 0, 0, 21, 20, -21)
-        load_lamell(diction, num+21, step, 0.1663, 0.3689, 19, 0, -20, 19)
-        load_lamell(diction, num+40, step, 0.6, 0.3689, 0, 21, 20, -21)
-        load_lamell(diction, num+61, step, 0.6, 0.3059, 19, 0, -20, 19)
-        step -= 2
-        num += 10
-
-
-
-def asdada():
-    # PIERWSZA STRONA
-    load_lamell(op, 61, 10, 0.1663, 0, 0, 21, 20, -21)
-    load_lamell(op, 82, 10, 0.1663, 0.3689, 19, 0, -20, 19)
-    load_lamell(op, 101, 10, 0.6, 0.3689, 0, 21, 20, -21)
-    load_lamell(op, 122, 10, 0.6, 0.3059, 19, 0, -20, 19)
-    # unique_quads(op, 121, 0.6, 0.3059, 0.3689)
-    # unique_quads(op, 81, 0.1667, 0.3689, 0)
-    top_load(op, 141, 0.3059, 0)
-
-
-def asdada1():
-    # DRUGA STRONA
-    load_lamell(op, 71, 9, 0.3326, 0, 0, 21, 20, -21)
-    load_lamell(op, 92, 9, 0.3326, 0.7378, 19, 0, -20, 19)
-    load_lamell(op, 111, 9, 1.2, 0.7378, 0, 21, 20, -21)
-    load_lamell(op, 132, 9, 1.2, 0.6118, 19, 0, -20, 19)
-    unique_quads(op, 131, 1.2, 0.6118, 0.7378, 0)
-    unique_quads(op, 91, 0.332, 0.7378, 0, 0)
-    unique_quads(op, 121, 1.2, 0.6118, 0.7378, -1)
-    unique_quads(op, 81, 0.332, 0.7378, 0, -1)
-    added_vert(op, 121, 0.6118, 1.2, 0.7378)
-    added_vert(op, 81, 0.7378, 0.3326, 0)
-    top_load(op, 151, 0.6118, 0)
