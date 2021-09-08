@@ -274,8 +274,15 @@ def change_string(string):
     return string
 
 
-def change_direction(elem):
-    return [elem[0], 0, elem[2]]
+def middle_func(e1, e2, num):
+    return [round((e1[num]+e2[num])/2, 3)]
+
+
+def change_direction(elem, elem2):
+    middle = []
+    for i in range(3):
+        middle.extend(middle_func(elem, elem2, i))
+    return middle
 
 
 def lammel(dict_list, num, load_1, load_2, param1, param2, param3, state=1):
@@ -289,12 +296,10 @@ def lammel(dict_list, num, load_1, load_2, param1, param2, param3, state=1):
     return text
 
 
-def load_lamell(dict_list, node, step, load_1, load_2, p1, p2, p3, p4):
+def load_lamell(dict_list, node, step, load_1, load_2, p1, p2):
     load_list = []
     for num in range(node, node+step):
-        load_list.append(lammel(dict_list, num+p1, load_2, load_1, -1, 0, p3))
-        if num < node+9:
-            load_list.append(lammel(dict_list, num+p2, load_1, load_2, -1, 0, p4))
+        load_list.append(lammel(dict_list, num+p1, load_2, load_1, -1, 0, p2))
     return load_list
 
 
@@ -322,28 +327,49 @@ def top_load(dict_list, num, l1, l2):
 def unique_quads(dict_list, num, load_1, load_2, load_3, step):
     load_list = []
     for _ in range(1):
-        load_list.append(lammel(dict_list, num, load_1, load_2, -1, step, 19, change_direction(dict_list[num-1])))
-        load_list.append(lammel(dict_list, num, load_1, load_3, -1, step, -21, change_direction(dict_list[num-1])))
+        load_list.append(lammel(dict_list, num, load_1, load_2, -1, step, 20, change_direction(dict_list[num])))
+        load_list.append(lammel(dict_list, num, load_1, load_3, -1, step, -20, change_direction(dict_list[num])))
     return load_list
 
     
-def lamell_snow_load(dict_list, num, step, l1, l2, l3, l4, left):
+def final_lamell_load(op, num, c1, c2, d1, d2, l1, l2, l3, l4):
     load_list = []
-    # DRUGA STRONA
-    side = 0 if left == -1 else -1
-    load_list.extend(load_lamell(dict_list, num, step, l4, 0, 0, 21, 20, -21))
-    load_list.extend(load_lamell(dict_list, num+21, step, l4, l3, 19, 0, -20, 19))
-    load_list.extend(load_lamell(dict_list, num+40, step, l2, l3, 0, 21, 20, -21))
-    load_list.extend(load_lamell(dict_list, num+61, step, l2, l1, 19, 0, -20, 19))
-    load_list.extend(unique_quads(dict_list, 131, l2, l1, l3, left))
-    load_list.extend(unique_quads(dict_list, 91, l4, l3, 0, left))
-    load_list.extend(unique_quads(dict_list, 121, l2, l1, l3, side))
-    load_list.extend(unique_quads(dict_list, 81, l4, l3, 0, side))
-    load_list.extend(top_load(dict_list, num+80, l1, 0))
-    if left != -1:
-        load_list.extend(added_vert(dict_list, 121, l1, l2, l3))
-        load_list.extend(added_vert(dict_list, 81, l3, l4, 0))
+    load_list.extend(load_lamell(op, num, c1, 0, l1, 0, -21))
+    load_list.extend(load_lamell(op, num-20, c2, l1, 0, 0, 20))
+    load_list.extend(load_lamell(op, num, c1, l2, l1, 0, 19))
+    load_list.extend(load_lamell(op, num+20, c2, l1, l2, 0, -20))
+    load_list.extend(load_lamell(op, num+40, c1, l2, l3, 0, -21))
+    load_list.extend(load_lamell(op, num+20, c2, l3, l2, 0, 20))
+    load_list.extend(load_lamell(op, num+40, c1, l4, l3, 0, 19))
+    load_list.extend(load_lamell(op, num+60, c2, l3, l4, 0, -20))
+    load_list.extend([lammel(op, 101, l2, l3, -1, d1, 20, change_direction(op[101], op[101-1]))])
+    load_list.extend([lammel(op, 101, l2, l1, -1, d1, -20, change_direction(op[101], op[101-1]))])
+    load_list.extend([lammel(op, 111, l2, l3, -1, d2, 20, change_direction(op[111], op[111-1]))])
+    load_list.extend([lammel(op, 111, l2, l1, -1, d2, -20, change_direction(op[111], op[111-1]))]) 
+    load_list.extend([lammel(op, 151, l4, l3, -1, d2, -20, change_direction(op[151], op[151-1]))]) #top
+    load_list.extend([lammel(op, 151, l4, 0, -1, d2, 9, change_direction(op[151], op[151-1]))]) #top
+    load_list.extend([lammel(op, 141, l4, l3, -1, d1, -20, change_direction(op[141], op[141-1]))]) #top
+    load_list.extend([lammel(op, 141, l4, 0, -1, d1, 19, change_direction(op[141], op[141-1]))]) #top
+    if num == 92:
+        load_list.extend(added_vert(op, 121, l4, l3, l2))
+        load_list.extend(added_vert(op, 81, l2, l1, 0)) 
+        load_list.extend([lammel(op, 160, l4, 0, -1, -20, 0)])
+        load_list.extend([lammel(op, 121, l3, l4, -1, 0, 19)])
+        load_list.extend([lammel(op, 81, l1, l2, -1, 0, 19)])
+        load_list.extend([lammel(op, 121, l3, l2, -1, 0, -21)])
+        load_list.extend([lammel(op, 81, l1, 0, -1, 0, -21)])
+        load_list.extend(extend_list(op, l4, 8, 152, 160))
+    else:
+        load_list.extend(extend_list(op, l4, 18, 142, 151))
     return load_list
+
+
+def extend_list(op, load, step, num1, num2):
+    ext_list = []
+    for n in range(num1, num2):
+        ext_list.extend([lammel(op, n, load, 0, -1, 0, step)])
+        step -= 1
+    return ext_list    
 
 
 def end_text(vert_force):
@@ -428,8 +454,8 @@ def test_length(diction, type_elems):
 def snow_loads(diction_list, name):
     load_snow_list = []
     if name == "lamell":
-        load_snow_list.extend(lamell_snow_load(diction_list, 71, 9, 0.6118, 1.2, 0.7378, 0.3326, 0))
-        load_snow_list.extend(lamell_snow_load(diction_list, 61, 10, 0.3059, 0.6, 0.3689, 0.1663, -1))
+        load_snow_list.extend(final_lamell_load(diction_list, 82, 10, 9, 0, -1, 0.1663, 0.3689, 0.6, 0.3059))
+        load_snow_list.extend(final_lamell_load(diction_list, 92, 8, 8, -1, 0, 0.3326, 0.7378, 1.2, 0.6118))
     else:
         load_snow_list.extend(snow_load(diction_list, 61, 1))
         load_snow_list.extend(snow_load(diction_list, 71, 2))
@@ -467,4 +493,3 @@ snow_force = 10     # kN
 zebrowa_total_length = create_dat("zebrowa", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler()[:300], quad_zebrowa())
 schwedler_total_length = create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
 lamell_total_length = create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
-
