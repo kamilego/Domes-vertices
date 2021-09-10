@@ -232,7 +232,6 @@ def create_changed_domes(dome_list):
 def prog_ase(number, load_num, description):
     docstring = f"""+prog ase urs:{number}
 head obliczenia
-syst prob th3
 lc {load_num}
 {description}
 end\n"""
@@ -257,7 +256,7 @@ $ Materials
 stee no 1 type s clas {Steel} gam 0 $ stal
 stee no 999 type s clas 235
 $ Cross-section
-scit no 1  d {Diameter} t {Thinness} mno 999
+scit no 1 d {Diameter} t {Thinness} mno 999
 end
 +prog sofimsha urs:2
 head Geometry
@@ -330,10 +329,10 @@ def unique_quads(dict_list, num, load_1, load_2, load_3, step):
     return load_list
 
     
-def final_lamell_load(op, num, c1, c2, d1, d2, l1, l2, l3, l4):
+def final_lamell_load(op, num, c1, c2, d1, d2, l1, l2, l3, l4, l5):
     load_list = []
-    load_list.extend(load_lamell(op, num, c1, 0, l1, 0, -21))
-    load_list.extend(load_lamell(op, num-20, c2, l1, 0, 0, 20))
+    load_list.extend(load_lamell(op, num, c1, l5, l1, 0, -21))
+    load_list.extend(load_lamell(op, num-20, c2, l1, l5, 0, 20))
     load_list.extend(load_lamell(op, num, c1, l2, l1, 0, 19))
     load_list.extend(load_lamell(op, num+20, c2, l1, l2, 0, -20))
     load_list.extend(load_lamell(op, num+40, c1, l2, l3, 0, -21))
@@ -345,40 +344,39 @@ def final_lamell_load(op, num, c1, c2, d1, d2, l1, l2, l3, l4):
     load_list.extend([lammel(op, 111, l2, l3, -1, d2, 20, change_direction(op[111], op[111-1]))])
     load_list.extend([lammel(op, 111, l2, l1, -1, d2, -20, change_direction(op[111], op[111-1]))]) 
     load_list.extend([lammel(op, 151, l4, l3, -1, d2, -20, change_direction(op[151], op[151-1]))]) #top
-    load_list.extend([lammel(op, 151, l4, 0, -1, d2, 9, change_direction(op[151], op[151-1]))]) #top
+    load_list.extend([lammel(op, 151, l4, l5, -1, d2, 9, change_direction(op[151], op[151-1]))]) #top
     load_list.extend([lammel(op, 141, l4, l3, -1, d1, -20, change_direction(op[141], op[141-1]))]) #top
-    load_list.extend([lammel(op, 141, l4, 0, -1, d1, 19, change_direction(op[141], op[141-1]))]) #top
+    load_list.extend([lammel(op, 141, l4, l5, -1, d1, 19, change_direction(op[141], op[141-1]))]) #top
     if num == 92:
-        load_list.extend(added_vert(op, 121, l4, l3, l2))
-        load_list.extend(added_vert(op, 81, l2, l1, 0)) 
-        load_list.extend([lammel(op, 160, l4, 0, -1, -20, 0)])
+        for x, y, z, k in zip([121, 81], [l4, l2], [l3, l1] ,[l2, l5]):
+            load_list.extend(added_vert(op, x, y, z, k))
+        load_list.extend([lammel(op, 160, l4, l5, -1, -20, 0)])
         load_list.extend([lammel(op, 121, l3, l4, -1, 0, 19)])
         load_list.extend([lammel(op, 81, l1, l2, -1, 0, 19)])
         load_list.extend([lammel(op, 121, l3, l2, -1, 0, -21)])
-        load_list.extend([lammel(op, 81, l1, 0, -1, 0, -21)])
-        load_list.extend(extend_list(op, l4, 8, 152, 160))
+        load_list.extend([lammel(op, 81, l1, l5, -1, 0, -21)])
+        load_list.extend(extend_list(op, l4, l2, 8, 152, 160))
     else:
-        load_list.extend(extend_list(op, l4, 18, 142, 151))
+        load_list.extend(extend_list(op, l4, l2, 18, 142, 151))
     return load_list
 
 
-def extend_list(op, load, step, num1, num2):
+def extend_list(op, load_1, load_2, step, num1, num2):
     ext_list = []
     for n in range(num1, num2):
-        ext_list.extend([lammel(op, n, load, 0, -1, 0, step)])
+        ext_list.extend([lammel(op, n, load_1, load_2, -1, 0, step)])
         step -= 1
     return ext_list    
 
 
 def end_text(vert_force):
-    load_text = f"""{prog_sofiload(3, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
-{prog_sofiload(4, 11, "vertical_force", f"node no 161 type pzz p1 {vert_force}")}
-{prog_ase(7, 1, "")}
-{prog_ase(8, 11, "")}
-{prog_ase(9, 2, "")}
-{prog_ase(10, 4, "")}
-{prog_ase(11, 5, "")}
-{prog_ase(12, "66 dlz 1.35 titl kombinacje", "lcc 2,4,5 fact 1.5")}"""
+    pro_string = ""
+    for i in range(1,6):
+	    pro_string = pro_string+prog_ase(i+2, i, "")
+    load_text = f"""{prog_sofiload(1, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
+{prog_sofiload(2, 2, "vertical_force", f"node no 161 type pzz p1 {vert_force}")}
+{pro_string}
+{prog_ase(12, "66 dlz 1.35 titl kombinacje", "lcc 3,4,5 fact 1.5")}"""
     return load_text
 
 
@@ -418,13 +416,16 @@ def schwedler_freeze(beam_list, vert_list, dome_name):
         return freeze_list
 
 
-def lamell_freeze(beam_list, vert_list):
-    freeze_list = []
-    for x, y in zip([27, 66], [188, 147]):
-        freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), x, y, 80, 11))
-    freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), 313, 394, 40, 6))
-    freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), 334, 294, 40, 5))
-    return freeze_list
+def dome_load_freeze(beam_list, vert_list, dome_name):
+    if dome_name == "lamell":
+        freeze_list = []
+        for x, y in zip([27, 66], [188, 147]):
+            freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), x, y, 80, 11))
+        freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), 313, 394, 40, 6))
+        freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), 334, 294, 40, 5))
+        return freeze_list
+    else:
+        return schwedler_freeze(beam_list, vert_list, dome_name)
 
 def snow_load(diction, no_side, multiply):
     def force_snow_load(diction, number, load_1, load_2, a1, a2, a3, a4, a5, a6):
@@ -447,7 +448,7 @@ def snow_load(diction, no_side, multiply):
         return lista
 
     tops_values = []
-    v = [0, 0.1663, 0.3689, 0.6 , 0.3059]
+    v = [0.6, 0.6, 0.6, 0.6 , 0.6]
     values = [val*multiply for val in v]
     levels = [num for num in range(no_side, no_side*2+1, 20)]
     for num, elem in enumerate(levels):
@@ -455,7 +456,7 @@ def snow_load(diction, no_side, multiply):
     lista = []
     for elem in tops_values:
         lista.extend(force_snow_load(diction, elem[0], elem[1], elem[2], 0, 20, 20, 19, 1, 0))
-    lista.extend(force_snow_load(diction, no_side+80, 0.3059*multiply, 0, 0, 20, 0, 0, 0, 1))
+    lista.extend(force_snow_load(diction, no_side+80, 0.6*multiply, 0, 0, 20, 0, 0, 0, 1))
     return lista
 
 
@@ -496,31 +497,58 @@ def test_length(diction, type_elems):
 	return test
 
 
-def final_snow_loads(diction_list, name):
-    load_snow_list = []
-    if name == "lamell":
-        load_snow_list.extend(final_lamell_load(diction_list, 82, 10, 9, 0, -1, 0.1663, 0.3689, 0.6, 0.3059))
-        load_snow_list.extend(final_lamell_load(diction_list, 92, 8, 8, -1, 0, 0.3326, 0.7378, 1.2, 0.6118))
-    else:
-        load_snow_list.extend(snow_load(diction_list, 61, 1))
-        load_snow_list.extend(snow_load(diction_list, 71, 2))
-    return load_snow_list
-
-
-def dome_wind_load(num1, num2, num3, start, stop, step, tresh, s1, s2, s3):
-    wind_list = [f"quad from 1 to {num1} type pyy p 0.39", f"quad from {num2} to {num3} type pyy p 0.39"]
+def snow_func(start, stop, step, s1, p2):
+    wind_list = []
     for num in range(start, stop, step):
-        wind_list.append(f"quad from {num} to {num+s1} type pyy p 0.78")
-        if num != tresh:
-            wind_list.append(f"quad from {num+s2} to {num+s3} type pyy p 0.39")
+        wind_list.append(f"quad from {num} to {num+s1} type pzz p {p2}")
     return wind_list
 
 
-def zebr_schwed_wind(dome_name):
+def zebr_sched_snow(dome_name):
+    snow_load = []
     if dome_name == "zebrowa":
-        return dome_wind_load(32, 99, 160, 33, 94, 20, 93, 5, 6, 19)
+        snow_load.extend(snow_func(61, 142, 20, 9, 0.6))
+        snow_load.extend(snow_func(71, 152, 20, 9, 1.2))
+        return snow_load
     else:
-        return dome_wind_load(168, 249, 300, 169, 240, 14, 239, 9, 10, 13)
+        snow_load.extend(snow_func(7, 135, 14, 7, 0.6))
+        snow_load.extend(snow_func(147, 275, 14, 7, 1.2))
+        snow_load.append(f"quad from 281 to 290 type pzz p 0.6")
+        snow_load.append(f"quad from 291 to 300 type pzz p 1.2")
+        return snow_load
+
+
+def dome_load_snow(diction_list, name):
+    load_snow_list = []
+    if name == "lamell":
+        load_snow_list.extend(final_lamell_load(diction_list, 82, 10, 9, 0, -1, 0.6, 0.6, 0.6, 0.6, 0.6))
+        load_snow_list.extend(final_lamell_load(diction_list, 92, 8, 8, -1, 0, 1.2, 1.2, 1.2, 1.2, 1.2))
+        return load_snow_list
+    else:
+        return zebr_sched_snow(name)
+
+
+def wind_list(dome_name, start, stop, step, s1, s2, p1, p2, beg, end):
+    wind_list = [f"quad from {beg} to {end} type pyy p {p1}"]
+    for num in range(start, stop, step):
+        wind_list.append(f"quad from {num} to {num+s1} type pyy p {p2}")
+        if dome_name == "zebrowa":
+            wind_list.append(f"quad from {num-s2} to {num-1} type pyy p {p1}")
+            wind_list.append(f"quad from {num+s1+1} to {num+s1+2} type pyy p {p1}")
+        else:
+            wind_list.append(f"quad from {num+s1+1} to {num+s1+4} type pyy p {p1}")
+    if dome_name == "schwedler":
+        wind_list.append(f"quad from 253 to 300 type pyy p {p1}")
+    return wind_list
+
+
+def dome_load_wind(dome_name):
+    if dome_name == "zebrowa":
+        return wind_list("zebrowa", 13, 94, 20, 5, 12, 0.39, 0.78, 101, 160)
+    elif dome_name == "lamell":
+        return lamel_wind()
+    else:
+        return wind_list("schwedler", 169, 240, 14, 9, 10, 0.39, 0.78, 1, 168)
 
 
 def lamel_wind():
@@ -568,27 +596,22 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
         with open(os.path.join(dome_name, f"{key}.dat"), "w") as f:
             f.writelines(start_text(dome_name, Steel, Diameter, Thinness))
             write_elems(change_dome_list_to_teddy(coord[key]), "$ Verices definition")
-            write_elems(beam_elem, "$ Beam definition")
-            write_elems(quad_elem, "$ Quad definition")
-            if dome_name != "lamell":
-                write_elems(schwedler_freeze(beam_elem, coord[key], dome_name), "end\n$ Freeze load\n+prog sofiload urs:4\nhead loads\nlc 4 titl freeze", "end\n")
-                write_elems(zebr_schwed_wind(dome_name), "end\n$ Wind load\n+prog sofiload urs:4\nhead loads\nlc 5 titl wind", "end\n")
-            else:
-                write_elems(lamel_wind(), "end\n$ Wind load\n+prog sofiload urs:4\nhead loads\nlc 5 titl wind", "end\n")
-                write_elems(lamell_freeze(beam_elem, coord[key]), "end\n$ Freeze load\n+prog sofiload urs:4\nhead loads\nlc 4 titl freeze", "end\n")
-            write_elems(final_snow_loads(coord[key], dome_name),"end\n+prog sofiload urs:5\nhead loads\nlc 2 titl snow", "end\n")
+            for x, y in zip([beam_elem, quad_elem], ["$ Beam definition", "$ Quad definition"]):
+                write_elems(x, y)
+            write_elems(dome_load_snow(coord[key], dome_name),"end\n+prog sofiload urs:5\nhead loads\nlc 3 titl snow", "end\n")
+            write_elems(dome_load_freeze(beam_elem, coord[key], dome_name), "end\n$ Freeze load\n+prog sofiload urs:4\nhead loads\nlc 4 titl freeze", "end\n")
+            write_elems(dome_load_wind(dome_name), "end\n$ Wind load\n+prog sofiload urs:4\nhead loads\nlc 5 titl wind", "end\n")
             f.writelines(end_text(vert_force))
     return value
 
 
-HEIGHT = 10         # m
+HEIGHT = 50         # m
 Steel = 235         # MPa
-Diameter = 108      # mma
-Thinness = 9.27     # mm
+Diameter = 70       # mma
+Thinness = 9.90     # mm
 vert_force = 2188   # kN
 
 
 zebrowa_total_length = create_dat("zebrowa", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler()[:300], quad_zebrowa())
 schwedler_total_length = create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
 lamell_total_length = create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
-
