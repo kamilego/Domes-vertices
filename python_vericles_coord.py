@@ -245,8 +245,9 @@ lc {load_num} titl {force_name}
 end\n"""
     return docstring
 
-def start_text(Name, Steel, Diameter, Thinness):
+def start_text(Name, Steel, Diameter, Thinness, length):
     text = f"""$ Dome {Name}
+$ total lenght {length}
 +prog aqua urs:1
 head Cross-sections & Materials
 echo full
@@ -328,35 +329,25 @@ def unique_quads(dict_list, num, load_1, load_2, load_3, step):
     return load_list
 
     
-def final_lamell_load(op, num, c1, c2, d1, d2, l1, l2, l3, l4, l5):
+def final_lamell_load(diction, num, c1, c2, d1, d2, l1, l2, l3, l4, l5):
     load_list = []
-    load_list.extend(load_lamell(op, num, c1, l5, l1, 0, -21))
-    load_list.extend(load_lamell(op, num-20, c2, l1, l5, 0, 20))
-    load_list.extend(load_lamell(op, num, c1, l2, l1, 0, 19))
-    load_list.extend(load_lamell(op, num+20, c2, l1, l2, 0, -20))
-    load_list.extend(load_lamell(op, num+40, c1, l2, l3, 0, -21))
-    load_list.extend(load_lamell(op, num+20, c2, l3, l2, 0, 20))
-    load_list.extend(load_lamell(op, num+40, c1, l4, l3, 0, 19))
-    load_list.extend(load_lamell(op, num+60, c2, l3, l4, 0, -20))
-    load_list.extend([lammel(op, 101, l2, l3, -1, d1, 20, change_direction(op[101], op[101-1]))])
-    load_list.extend([lammel(op, 101, l2, l1, -1, d1, -20, change_direction(op[101], op[101-1]))])
-    load_list.extend([lammel(op, 111, l2, l3, -1, d2, 20, change_direction(op[111], op[111-1]))])
-    load_list.extend([lammel(op, 111, l2, l1, -1, d2, -20, change_direction(op[111], op[111-1]))]) 
-    load_list.extend([lammel(op, 151, l4, l3, -1, d2, -20, change_direction(op[151], op[151-1]))]) #top
-    load_list.extend([lammel(op, 151, l4, l5, -1, d2, 9, change_direction(op[151], op[151-1]))]) #top
-    load_list.extend([lammel(op, 141, l4, l3, -1, d1, -20, change_direction(op[141], op[141-1]))]) #top
-    load_list.extend([lammel(op, 141, l4, l5, -1, d1, 19, change_direction(op[141], op[141-1]))]) #top
+    for x, y, z ,k in zip([num, num, num+40, num+40], [l5, l2, l2, l4], [l1, l1, l3, l3], [-21, 19, -21, 19]):
+        load_list.extend(load_lamell(diction, x, c1, y, z, 0, k))
+    for x, y, z ,k in zip([num-20, num+20, num+20, num+60], [l1, l1, l3, l3], [l5, l2, l2, l4], [20, -20, 20, -20]):
+        load_list.extend(load_lamell(diction, x, c2, y, z, 0, k))
+    for x, y, z, k in zip([101, 111, 101, 111],[l3, l3, l1, l1],[d1, d2, d1, d2],[20, 20, -20, -20]):
+        load_list.extend([lammel(diction, x, l4, y, -1, z, k, change_direction(diction[x], diction[x-1]))]) #top 
+    for x, y, z, k in zip([151, 141, 151, 141],[l3, l3, l5, l5],[d2, d1, d2, d1],[-20, -20, 9, 19]):
+        load_list.extend([lammel(diction, x, l4, y, -1, z, k, change_direction(diction[x], diction[x-1]))]) #top
     if num == 92:
         for x, y, z, k in zip([121, 81], [l4, l2], [l3, l1] ,[l2, l5]):
-            load_list.extend(added_vert(op, x, y, z, k))
-        load_list.extend([lammel(op, 160, l4, l5, -1, -20, 0)])
-        load_list.extend([lammel(op, 121, l3, l4, -1, 0, 19)])
-        load_list.extend([lammel(op, 81, l1, l2, -1, 0, 19)])
-        load_list.extend([lammel(op, 121, l3, l2, -1, 0, -21)])
-        load_list.extend([lammel(op, 81, l1, l5, -1, 0, -21)])
-        load_list.extend(extend_list(op, l4, l2, 8, 152, 160))
+            load_list.extend(added_vert(diction, x, y, z, k))
+        load_list.extend([lammel(diction, 160, l4, l5, -1, -20, 0)])
+        for x, y, z, k in zip([121, 121, 81, 81], [l3, l3, l1, l1], [l4, l2, l2, l5], [19, -21, 19, -21]):
+            load_list.extend([lammel(diction, x, y, z, -1, 0, k)])
+        load_list.extend(extend_list(diction, l4, l2, 8, 152, 160))
     else:
-        load_list.extend(extend_list(op, l4, l2, 18, 142, 151))
+        load_list.extend(extend_list(diction, l4, l2, 18, 142, 151))
     return load_list
 
 
@@ -594,7 +585,7 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
         os.makedirs(f"{dome_name}")
     for key in coord.keys():
         with open(os.path.join(dome_name, f"{key}.dat"), "w") as f:
-            f.writelines(start_text(dome_name, Steel, Diameter, Thinness))
+            f.writelines(start_text(dome_name, Steel, Diameter, Thinness, value[key]))
             write_elems(change_dome_list_to_teddy(coord[key]), "$ Verices definition")
             for x, y in zip([beam_elem, quad_elem], ["$ Beam definition", "$ Quad definition"]):
                 write_elems(x, y)
@@ -617,11 +608,11 @@ schwedler_total_length = create_dat("schwedler", create_changed_domes(create_dom
 lamell_total_length = create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
 
 
-for i in zebrowa_total_length:
-    print(i, zebrowa_total_length[i])
-print()
-for i in schwedler_total_length:
-    print(i, schwedler_total_length[i])
-print()
-for i in lamell_total_length:
-    print(i, lamell_total_length[i])        
+# for i in zebrowa_total_length:
+#     print(i, zebrowa_total_length[i])
+# print()
+# for i in schwedler_total_length:
+#     print(i, schwedler_total_length[i])
+# print()
+# for i in lamell_total_length:
+#     print(i, lamell_total_length[i])        
