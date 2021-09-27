@@ -5,6 +5,7 @@ from math import sqrt
 import re
 
 
+# function returns quads for lamella dome
 def quad_lamell():
     def all_names(param, sum,  a4, a5, a1=0, a2=1, a3=19):
         lista = []
@@ -25,18 +26,18 @@ def quad_lamell():
                     sum += 1
         return lista
 
-    f_list = []
+    quad_lam_list = []
     summary = 1
     for num in range(20, 140, 40):
-        f_list.extend(all_names(num, summary, 20, 20))
-        f_list.extend(all_names(num+20, summary+40, 21, 1))
+        quad_lam_list.extend(all_names(num, summary, 20, 20))
+        quad_lam_list.extend(all_names(num+20, summary+40, 21, 1))
         summary += 80
-    f_list.extend(all_names(140, 241, 20, 20))
-    f_list.extend(final_join(281))
-    add_teddy_elem(f_list, "quad no")
-    return f_list
+    quad_lam_list.extend(all_names(140, 241, 20, 20))
+    quad_lam_list.extend(final_join(281))
+    add_teddy_elem(quad_lam_list, "quad no")
+    return quad_lam_list
 
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+# function returns top quads for all domes
 def final_join(summary):
     small_list = []
     for num in range(141,160):
@@ -47,113 +48,122 @@ def final_join(summary):
     return small_list
 
 
+# function returns quads for schwedler dome
 def quad_schwedler():
     def final_vert_names(param, sum, a1, a2, a3, a4):
-        lista = []
+        vert_list = []
         for num in range(param, param+121, 20):
-            lista.append(f"{sum} n1 {num} n2 {num+a2} n3 {num+a1} mno 1 posi cent t 1")
+            vert_list.append(f"{sum} n1 {num} n2 {num+a2} n3 {num+a1} mno 1 posi cent t 1")
             sum += 1
-            lista.append(f"{sum} n1 {num} n2 {num+a4} n3 {num+a3} mno 1 posi cent t 1")
+            vert_list.append(f"{sum} n1 {num} n2 {num+a4} n3 {num+a3} mno 1 posi cent t 1")
             sum += 1
-        return lista
+        return vert_list
 
-    names_list = []
+    quad_sch_list = []
     summary = 1
     for num in range(2,19,2):
-        names_list.extend(final_vert_names(num, summary, 19, -1, 20, 19))
+        quad_sch_list.extend(final_vert_names(num, summary, 19, -1, 20, 19))
         summary += 14
-        names_list.extend(final_vert_names(num, summary, 21, 20, 1, 21))
+        quad_sch_list.extend(final_vert_names(num, summary, 21, 20, 1, 21))
         summary += 14
 
-    names_list.extend(final_vert_names(20, summary, 1, 20, -19, 1))
+    quad_sch_list.extend(final_vert_names(20, summary, 1, 20, -19, 1))
     summary += 14
-    names_list.extend(final_vert_names(20, summary, 20, 19, 19, -1))
+    quad_sch_list.extend(final_vert_names(20, summary, 20, 19, 19, -1))
     summary += 14
 
-    names_list.extend(final_join(summary))
-    add_teddy_elem(names_list, "quad no")
-    return names_list
+    quad_sch_list.extend(final_join(summary))
+    add_teddy_elem(quad_sch_list, "quad no")
+    return quad_sch_list
 
+
+# function returns quads for zebrowa dome
 def quad_zebrowa():
     def zebrowa_poles(param, sum):
-        lista = []
+        zebro_list = []
         for num in range(param, 141):
             if not num % 20 == 0:
-                lista.append(f"{sum} n1 {num} n2 {num+20} n3 {num+21} n4 {num+1} mno 1 posi cent t 1")
+                zebro_list.append(f"{sum} n1 {num} n2 {num+20} n3 {num+21} n4 {num+1} mno 1 posi cent t 1")
                 sum +=1
             else:
-                lista.append(f"{sum} n1 {num} n2 {num+20} n3 {num+1} n4 {num-19} mno 1 posi cent t 1")
+                zebro_list.append(f"{sum} n1 {num} n2 {num+20} n3 {num+1} n4 {num-19} mno 1 posi cent t 1")
                 sum +=1
-        return [lista, sum]
+        return [zebro_list, sum]
     
-    f_list = zebrowa_poles(1, 1)
-    f_list[0].extend(final_join(zebrowa_poles(1, 1)[1]))
-    add_teddy_elem(f_list[0], "quad no")
-    return f_list[0]
+    quad_zeb_list = zebrowa_poles(1, 1)
+    quad_zeb_list[0].extend(final_join(zebrowa_poles(1, 1)[1]))
+    add_teddy_elem(quad_zeb_list[0], "quad no")
+    return quad_zeb_list[0]
 
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+# function returns top beam elems for all domes
 def dome_join(param, count, impr, step, plus, sp1, sp2, sp3, sp4):
-    lista = []
+    join_list = []
     for num in range(param, param+impr, step):
         if num < param+plus:
-            lista.append(f"{count} na {num} ne {num+sp1} ncs 1 div 5")
+            join_list.append(f"{count} na {num} ne {num+sp1} ncs 1 div 5")
             count += 1
         else:
-            lista.append(f"{count} na {num} ne {(num-sp2)*sp3+161*sp4} ncs 1 div 5")
-    return lista
+            join_list.append(f"{count} na {num} ne {(num-sp2)*sp3+161*sp4} ncs 1 div 5")
+    return join_list
 
+
+# function changes values to teddy data
 def add_teddy_elem(dome_list, elem_type):
     for i in range(len(dome_list)):
         if i == 0:
             dome_list[0] = f"{elem_type} {dome_list[0]}"
 
+
+# function returns beam elems for all domes
 def domes_sticks(param, count, add, step, var, sp1, sp2):
-    lista = []
+    sticks_list = []
     for num in range(param, param+add, step):
         if num < param+var:
-            lista.append(f"{count} na {num} ne {num+20+sp1} ncs 1 div 5")
+            sticks_list.append(f"{count} na {num} ne {num+20+sp1} ncs 1 div 5")
             count += 1
-            lista.append(f"{count} na {num+20+sp1} ne {num+step} ncs 1 div 5")
+            sticks_list.append(f"{count} na {num+20+sp1} ne {num+step} ncs 1 div 5")
             count += 1
         else:
-            lista.append(f"{count} na {num} ne {num+sp2} ncs 1 div 5")
+            sticks_list.append(f"{count} na {num} ne {num+sp2} ncs 1 div 5")
             count += 1
-            lista.append(f"{count} na {num+sp2} ne {num-add+1} ncs 1 div 5")
+            sticks_list.append(f"{count} na {num+sp2} ne {num-add+1} ncs 1 div 5")
             count += 1
-    return lista
+    return sticks_list
 
 
+# function returns beam elems for lamella domes
 def beam_lamell():
-    check_list = []
+    beam_lam_list = []
     for num, param in enumerate([num for num in range(1, 142, 20)], start=1):
         if param < 141:
             if num % 2 == 0:
-                check_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=1, sp2=1))
+                beam_lam_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=1, sp2=1))
             else:
-                check_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=0, sp2=20))
+                beam_lam_list.extend(domes_sticks(param, param*2 - 1, add=20, step=1, var=19, sp1=0, sp2=20))
         else:
             for num in range(param, param+20):
-                check_list.append(f"{num+140} na {num} ne 161 ncs 1 div 5")
+                beam_lam_list.append(f"{num+140} na {num} ne 161 ncs 1 div 5")
     for num in range(21, 142, 20):
-        check_list.extend(dome_join(num, count=280+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
-    add_teddy_elem(check_list, "beam no")
-    return check_list
+        beam_lam_list.extend(dome_join(num, count=280+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
+    add_teddy_elem(beam_lam_list, "beam no")
+    return beam_lam_list
 
 
+# function returns beam elems for schwedler domes
 def beam_schwedler():
-    lista = []
+    beam_sch_list = []
     for num in range(1, 21):
-        lista.extend(dome_join(num, count=-7+num*8, impr=141, step=20, plus=121, sp1=20, sp2=161, sp3=0, sp4=1))
+        beam_sch_list.extend(dome_join(num, count=-7+num*8, impr=141, step=20, plus=121, sp1=20, sp2=161, sp3=0, sp4=1))
     for num in range(21, 142, 20):
-        lista.extend(dome_join(num, count=140+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
+        beam_sch_list.extend(dome_join(num, count=140+num, impr=20, step=1, plus=19, sp1=1, sp2=19, sp3=1, sp4=0))
     for num, param in enumerate([num for num in range(2, 141, 20)], start=1):
-        lista.extend(domes_sticks(param, 299+param, add=19, step=2, var=17, sp1=1, sp2=1))
-    add_teddy_elem(lista, "beam no")
-    return lista
+        beam_sch_list.extend(domes_sticks(param, 299+param, add=19, step=2, var=17, sp1=1, sp2=1))
+    add_teddy_elem(beam_sch_list, "beam no")
+    return beam_sch_list
 
-# @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-# end quads functions
 
+# function returns list with changed data to teddy program
 def change_dome_list_to_teddy(dome_list):
     dome_list_copy = dome_list.copy()
     for i in range(len(dome_list_copy)):
@@ -166,6 +176,7 @@ def change_dome_list_to_teddy(dome_list):
     return dome_list_copy
 
 
+# function returns diction with coordinates for all levels
 def create_domes(height, dome_type):
     def vert_cord_list(dome_type, height, param):
         def y_z(num, length=1, multiply=-1):
@@ -210,6 +221,7 @@ def create_domes(height, dome_type):
     return dome_dict
 
 
+# function changes vertices values for certain levels
 def create_changed_domes(dome_list):
     def return_number(param):
         param = param*2
@@ -229,6 +241,7 @@ def create_changed_domes(dome_list):
     return main_dict
 
 
+# function returns ase function to count loads
 def prog_ase(number, load_num, description):
     docstring = f"""+prog ase urs:{number}
 head obliczenia
@@ -237,6 +250,8 @@ lc {load_num}
 end\n"""
     return docstring
 
+
+# function returns sofiload function to set load value
 def prog_sofiload(number, load_num, force_name, description):
     docstring = f"""+prog sofiload urs:{number}
 head loads
@@ -245,6 +260,8 @@ lc {load_num} titl {force_name}
 end\n"""
     return docstring
 
+
+# function returns beggining of teddy script 
 def start_text(Name, Steel, Diameter, Thinness, length):
     text = f"""$ Dome {Name}
 $ total lenght {length}
@@ -267,15 +284,18 @@ echo full
     return text
 
 
+# function replaces unnecessary elements
 def change_string(string):
     string = str(string).replace("[", "").replace("]", "").replace("'", "").replace(r"\\", r"\n")
     return string
 
 
+# fuction returns averange value
 def middle_func(e1, e2, num):
     return [round((e1[num]+e2[num])/2, 3)]
 
 
+# fucntion changes direction for loads definiotion
 def change_direction(elem, elem2):
     middle = []
     for i in range(3):
@@ -283,6 +303,7 @@ def change_direction(elem, elem2):
     return middle
 
 
+# function returns are definition for pressure load
 def lammel(dict_list, num, load_1, load_2, param1, param2, param3, state=1):
     if state == 1:
         state = change_string(dict_list[num+param1])
@@ -294,13 +315,14 @@ def lammel(dict_list, num, load_1, load_2, param1, param2, param3, state=1):
     return text
 
 
+# function returns list with loads
 def load_lamell(dict_list, node, step, load_1, load_2, p1, p2):
     load_list = []
     for num in range(node, node+step):
         load_list.append(lammel(dict_list, num+p1, load_2, load_1, -1, 0, p2))
     return load_list
 
-
+# function returns list with loads
 def added_vert(dict_list, num, l1, l2, l3):
     load_list = []
     load_list.append(lammel(dict_list, num, l1, l2, 38, 19, -1))  # 160, 141
@@ -310,6 +332,7 @@ def added_vert(dict_list, num, l1, l2, l3):
     return load_list
 
 
+# function returns list with loads
 def top_load(dict_list, num, l1, l2):
     param = 19 if num == 141 else 9
     load_list = []
@@ -322,13 +345,15 @@ def top_load(dict_list, num, l1, l2):
     return load_list
 
 
+# function returns list with loads
 def unique_quads(dict_list, num, load_1, load_2, load_3, step):
     load_list = []
     for x, y in zip([load_2, load_3], [20, -20]):
         load_list.append(lammel(dict_list, num, load_1, x, -1, step, y, change_direction(dict_list[num])))
     return load_list
 
-    
+
+# function returns list with loads
 def final_lamell_load(diction, num, c1, c2, d1, d2, l1, l2, l3, l4, l5):
     load_list = []
     for x, y, z ,k in zip([num, num, num+40, num+40], [l5, l2, l2, l4], [l1, l1, l3, l3], [-21, 19, -21, 19]):
@@ -351,6 +376,7 @@ def final_lamell_load(diction, num, c1, c2, d1, d2, l1, l2, l3, l4, l5):
     return load_list
 
 
+# function returns list with loads
 def extend_list(op, load_1, load_2, step, num1, num2):
     ext_list = []
     for n in range(num1, num2):
@@ -359,18 +385,17 @@ def extend_list(op, load_1, load_2, step, num1, num2):
     return ext_list    
 
 
+# function returns text with loads values
 def end_text(vert_force):
-    pro_string = ""
-    for i in range(1,6):
-	    pro_string = pro_string+prog_ase(i+2, i, "")
     load_text = f"""{prog_sofiload(1, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
 {prog_sofiload(2, 2, "vertical_force", f"node no 161 type pzz p1 {vert_force}")}
-{pro_string}
-{prog_ase(12, "66 dlz 1.35 titl kombinacje SGN", "lcc 3,4,5 fact 1.5")}
-{prog_ase(13, "67 dlz 1.0 titl kombinacje SGU", "lcc 3,4,5 fact 1.0")}"""
+{prog_ase(1, "1,2,3,4,5", "")}
+{prog_ase(12, "66 dlz 1.35 titl kombinacje_SGN", "lcc 3,4,5 fact 1.5")}
+{prog_ase(13, "67 dlz 1.0 titl kombinacje_SGU", "lcc 3,4,5 fact 1.0")}"""
     return load_text
 
 
+# function returns diction with beam numbers
 def create_beam_dict(beam_list, vert_list):
 	beam_dict = {}
 	for elem in beam_list:
@@ -382,20 +407,22 @@ def create_beam_dict(beam_list, vert_list):
 	return beam_dict
 
 
+# function creates freeze load case list
 def return_freeze_beam_coord(beam_dict, start, step):
 	coords = []
 	for num in range(start, start+step+1):
 		coords.append(f"line ref bgrp type pzz p1 0.022 x1 {change_string(beam_dict[num][0])} x2 {change_string(beam_dict[num][1])}")
 	return coords
 
-
+# function return freeze load cases
 def freeze_load(beam_dict, num1, num2, step, sum):
-    lista = []
+    freeze_list = []
     for num in range(num1, num2, step):
-        lista.extend(return_freeze_beam_coord(beam_dict, num, sum))
-    return lista
+        freeze_list.extend(return_freeze_beam_coord(beam_dict, num, sum))
+    return freeze_list
 
 
+# function return freeze dome load cases
 def schwedler_freeze(beam_list, vert_list, dome_name):
     freeze_list = []
     freeze_list.extend(freeze_load(create_beam_dict(beam_list, vert_list), 173, 254, 20, 5))
@@ -407,6 +434,7 @@ def schwedler_freeze(beam_list, vert_list, dome_name):
         return freeze_list
 
 
+# function return freeze dome load cases
 def dome_load_freeze(beam_list, vert_list, dome_name):
     if dome_name == "lamell":
         freeze_list = []
@@ -418,6 +446,8 @@ def dome_load_freeze(beam_list, vert_list, dome_name):
     else:
         return schwedler_freeze(beam_list, vert_list, dome_name)
 
+
+# function return snow load cases
 def snow_load(diction, no_side, multiply):  
     def force_snow_load(diction, number, load_1, load_2, a1, a2, a3, a4, a5, a6):
         def area_load_string(diction, num, load_1, load_2, param1, param2, param3, area_type1, area_type2):
@@ -430,13 +460,13 @@ def snow_load(diction, no_side, multiply):
             else:
                 text = text[:len(text)-text[::-1].index("$$")-2] + "\n"
                 return text
-        lista = []
+        force_list = []
         for num in range(number, number+10):
             if num not in [num for num in range(80, 161, 20)]:
-                lista.append(area_load_string(diction, num, load_1, load_2, a1, a3, a4, a5, a6))
+                force_list.append(area_load_string(diction, num, load_1, load_2, a1, a3, a4, a5, a6))
             else:
-                lista.append(area_load_string(diction, num, load_1, load_2, a2, a1, a4, a5, a6))
-        return lista
+                force_list.append(area_load_string(diction, num, load_1, load_2, a2, a1, a4, a5, a6))
+        return force_list
 
     tops_values = []
     v = [0.6, 0.6, 0.6, 0.6 , 0.6]
@@ -444,13 +474,14 @@ def snow_load(diction, no_side, multiply):
     levels = [num for num in range(no_side, no_side*2+1, 20)]
     for num, elem in enumerate(levels):
         tops_values.append([elem, values[num], values[num+1]])
-    lista = []
+    snow_lista = []
     for elem in tops_values:
-        lista.extend(force_snow_load(diction, elem[0], elem[1], elem[2], 0, 20, 20, 19, 1, 0))
-    lista.extend(force_snow_load(diction, no_side+80, 0.6*multiply, 0, 0, 20, 0, 0, 0, 1))
-    return lista
+        snow_lista.extend(force_snow_load(diction, elem[0], elem[1], elem[2], 0, 20, 20, 19, 1, 0))
+    snow_lista.extend(force_snow_load(diction, no_side+80, 0.6*multiply, 0, 0, 20, 0, 0, 0, 1))
+    return snow_lista
 
 
+# fucntion searches for digits and returns list of them 
 def list_of_joined_vertices(dome_list):
     num_vertex = re.compile(r'\d{1,3} ne \d{1,3}')
     ver_list = []
@@ -459,6 +490,7 @@ def list_of_joined_vertices(dome_list):
     return ver_list
 
 
+# function returns distance between two vertices
 def counting(diction, elem):
     result = 0
     for i in range(3):
@@ -466,6 +498,7 @@ def counting(diction, elem):
     return result
 
 
+# function counts total lenght elems
 def sum_of_length_count(list, diction):
     sum = 0
     for elem in list:
@@ -473,21 +506,23 @@ def sum_of_length_count(list, diction):
     return round(sum)
 
 
+# function returns result of couting
 def coord_dict(dict_list, elems):
-	a1 = {}
+	small_dict = {}
 	for num, elem in enumerate(dict_list, start=1):
-		a1[num] = elem
-	result = sum_of_length_count(elems, a1)
+		small_dict[num] = elem
+	result = sum_of_length_count(elems, small_dict)
 	return result
 
-
-def test_length(diction, type_elems):
-	test = {}
+# function returns total lenght elems
+def total_length(diction, type_elems):
+	total_dict = {}
 	for key in diction:
-		test[key] = coord_dict(diction[key], list_of_joined_vertices(type_elems))
-	return test
+		total_dict[key] = coord_dict(diction[key], list_of_joined_vertices(type_elems))
+	return total_dict
 
 
+# function returns snow load
 def snow_func(start, stop, step, s1, p2):
     wind_list = []
     for num in range(start, stop, step):
@@ -495,6 +530,7 @@ def snow_func(start, stop, step, s1, p2):
     return wind_list
 
 
+# function returns snow load
 def zebr_sched_snow(dome_name):
     snow_load = []
     if dome_name == "zebrowa":
@@ -509,6 +545,7 @@ def zebr_sched_snow(dome_name):
         return snow_load
 
 
+# function returns snow load
 def dome_load_snow(diction_list, name):
     load_snow_list = []
     if name == "lamell":
@@ -519,6 +556,7 @@ def dome_load_snow(diction_list, name):
         return zebr_sched_snow(name)
 
 
+# function returns zebrowa dome load
 def dome_wind(dome_name, start, stop, step, s1, s2, p1, p2, beg, end):
     wind_list = [f"quad from {beg} to {end} type pyy p {p1}"]
     for num in range(start, stop, step):
@@ -533,6 +571,7 @@ def dome_wind(dome_name, start, stop, step, s1, s2, p1, p2, beg, end):
     return wind_list
 
 
+# function returns dome wind load case
 def dome_load_wind(dome_name):
     if dome_name == "zebrowa":
         return dome_wind("zebrowa", 13, 94, 20, 5, 12, 1.72, 1.14, 101, 160)
@@ -542,6 +581,7 @@ def dome_load_wind(dome_name):
         return dome_wind("schwedler", 169, 240, 14, 9, 10, 1.72, 1.14, 1, 168)
 
 
+# funtion returns quad numbers for lamella wind load 
 def lamel_wind():
     wind_list = ["quad from 1 to 13 type pyy p 1.72", "quad from 200 to 300 type pyy p 1.72"]
     x = [14, 75, 94, 155, 174]
@@ -573,6 +613,7 @@ def lamel_wind():
     return wind_list
 
 
+# function return value of all elements that dome consists of and created .dat files
 def create_dat(dome_name, coord, beam_elem, quad_elem):
     def write_elems(elem_list, beg_text, end_text=""):
         f.writelines(f"{beg_text}\n")
@@ -580,7 +621,7 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
             f.writelines(f"{i}\n")
         f.writelines(f"{end_text}\n")
 
-    value = test_length(coord, beam_elem)
+    value = total_length(coord, beam_elem)
     if not os.path.exists(f"{dome_name}"):
         os.makedirs(f"{dome_name}")
     for key in coord.keys():
@@ -589,13 +630,14 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
             write_elems(change_dome_list_to_teddy(coord[key]), "$ Verices definition")
             for x, y in zip([beam_elem, quad_elem], ["$ Beam definition", "$ Quad definition"]):
                 write_elems(x, y)
-            write_elems(dome_load_snow(coord[key], dome_name),"end\n+prog sofiload urs:5\nhead loads\nlc 3 titl snow", "end\n")
-            write_elems(dome_load_freeze(beam_elem, coord[key], dome_name), "end\n$ Freeze load\n+prog sofiload urs:4\nhead loads\nlc 4 titl freeze", "end\n")
-            write_elems(dome_load_wind(dome_name), "end\n$ Wind load\n+prog sofiload urs:4\nhead loads\nlc 5 titl wind", "end\n")
+            write_elems(dome_load_snow(coord[key], dome_name),"end\n$ Snow load\n+prog sofiload urs:5\nhead loads\nlc 3 titl snow", "end\n")
+            write_elems(dome_load_freeze(beam_elem, coord[key], dome_name), "$ Freeze load\n+prog sofiload urs:4\nhead loads\nlc 4 titl freeze", "end\n")
+            write_elems(dome_load_wind(dome_name), "$ Wind load\n+prog sofiload urs:4\nhead loads\nlc 5 titl wind", "end\n")
             f.writelines(end_text(vert_force))
     return value
 
 
+# Values to be set by user
 HEIGHT = 50         # m
 Steel = 235         # MPa
 Diameter = 108      # mm
@@ -603,16 +645,15 @@ Thinness = 9.27     # mm
 vert_force = 2188   # kN
 
 
+# dictions with total lenght values for certain dome degree change
 zebrowa_total_length = create_dat("zebrowa", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler()[:300], quad_zebrowa())
 schwedler_total_length = create_dat("schwedler", create_changed_domes(create_domes(HEIGHT, "schwedler")), beam_schwedler(), quad_schwedler())
 lamell_total_length = create_dat("lamell", create_changed_domes(create_domes(HEIGHT, "lamell")), beam_lamell(), quad_lamell())
 
-
-# for i in zebrowa_total_length:
-#     print(i, zebrowa_total_length[i])
-# print()
-# for i in schwedler_total_length:
-#     print(i, schwedler_total_length[i])
-# print()
-# for i in lamell_total_length:
-#     print(i, lamell_total_length[i])        
+ 
+for name, dome in zip([zebrowa_total_length, schwedler_total_length, lamell_total_length], ["zebrowa", "schwedler", "lamella"]):
+    print(f"total lenght for {dome}:")
+    keys_list = list(name.keys())
+    keys_list.sort(key=lambda x: x.split("_")[0])
+    for key in keys_list:
+        print(f"{key}: {name[key]}m")
