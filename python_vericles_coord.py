@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import math
 from math import sqrt
 import re
@@ -192,11 +191,14 @@ def create_domes(height, dome_type):
             return x_y
 
         len_dict = {}
-        for num in np.arange(0, 91, 90/8):
-            if num == 0.0 or num == 90.0:
-                len_dict[num] = y_z(num)
+        ver_num = 0.0
+        for _ in range(9):
+            if ver_num == 0.0 or ver_num == 90.0:
+                len_dict[ver_num] = y_z(ver_num)
+                ver_num += 11.25
             else:
-                len_dict[num] = y_z(num-param)
+                len_dict[ver_num] = y_z(ver_num-param)
+                ver_num += 11.25
 
         all_list = [list(len_dict[0])]
         if dome_type.lower() == "schwedler" or dome_type.lower() == "zebrowa":
@@ -235,9 +237,11 @@ def create_changed_domes(dome_list):
 
     main_dict = {}
     for num in range(-2,3):
-        for param in np.arange(90/8, 90, 90/8):
+        param = 11.25
+        for _ in range(6):
             val = return_number(param)
             main_dict[f"{param}_{num}"] = dome_list[0][:val] + dome_list[num][val:val+20] + dome_list[0][val+20:]
+            param += 11.25
     return main_dict
 
 
@@ -279,7 +283,7 @@ end
 +prog sofimsha urs:2
 head Geometry
 syst 3d
-echo full
+echo full\n
 """
     return text
 
@@ -390,8 +394,8 @@ def end_text(vert_force):
     load_text = f"""{prog_sofiload(1, 1, "constant_load", "node no 161 type pzz p1 0.0001")}
 {prog_sofiload(2, 2, "vertical_force", f"node no 161 type pzz p1 {vert_force}")}
 {prog_ase(1, "1,2,3,4,5", "")}
-{prog_ase(12, "66 dlz 1.35 titl kombinacje_SGN", "lcc 3,4,5 fact 1.5")}
-{prog_ase(13, "67 dlz 1.0 titl kombinacje_SGU", "lcc 3,4,5 fact 1.0")}"""
+{prog_ase(12, "66 dlz 1.35 titl komb_SGN", "lcc 3,4,5 fact 1.5")}
+{prog_ase(13, "67 dlz 1.0 titl komb_SGU", "lcc 3,4,5 fact 1.0")}"""
     return load_text
 
 
@@ -411,7 +415,7 @@ def create_beam_dict(beam_list, vert_list):
 def return_freeze_beam_coord(beam_dict, start, step):
 	coords = []
 	for num in range(start, start+step+1):
-		coords.append(f"line ref bgrp type pzz p1 0.022 x1 {change_string(beam_dict[num][0])} x2 {change_string(beam_dict[num][1])}")
+		coords.append(f"line ref bgrp type pzz p1 {freeze} x1 {change_string(beam_dict[num][0])} x2 {change_string(beam_dict[num][1])}")
 	return coords
 
 # function return freeze load cases
@@ -546,11 +550,12 @@ def zebr_sched_snow(dome_name):
 
 
 # function returns snow load
-def dome_load_snow(diction_list, name):
+def dome_load_snow(diction_list, name, s):
+    a = snow/2
     load_snow_list = []
     if name == "lamell":
-        load_snow_list.extend(final_lamell_load(diction_list, 82, 10, 9, 0, -1, 0.6, 0.6, 0.6, 0.6, 0.6))
-        load_snow_list.extend(final_lamell_load(diction_list, 92, 8, 8, -1, 0, 1.2, 1.2, 1.2, 1.2, 1.2))
+        load_snow_list.extend(final_lamell_load(diction_list, 82, 10, 9, 0, -1, a, a, a, a, a))
+        load_snow_list.extend(final_lamell_load(diction_list, 92, 8, 8, -1, 0, s, s, s, s, s))
         return load_snow_list
     else:
         return zebr_sched_snow(name)
@@ -573,12 +578,14 @@ def dome_wind(dome_name, start, stop, step, s1, s2, p1, p2, beg, end):
 
 # function returns dome wind load case
 def dome_load_wind(dome_name):
+    w1 = round(wind*0.8, 2)
+    w2 = round(wind*1.2, 2)
     if dome_name == "zebrowa":
-        return dome_wind("zebrowa", 13, 94, 20, 5, 12, 1.72, 1.14, 101, 160)
+        return dome_wind("zebrowa", 13, 94, 20, 5, 12, w2, w1, 101, 160)
     elif dome_name == "lamell":
         return lamel_wind()
     else:
-        return dome_wind("schwedler", 169, 240, 14, 9, 10, 1.72, 1.14, 1, 168)
+        return dome_wind("schwedler", 169, 240, 14, 9, 10, w2, w1, 1, 168)
 
 
 # funtion returns quad numbers for lamella wind load 
@@ -630,7 +637,7 @@ def create_dat(dome_name, coord, beam_elem, quad_elem):
             write_elems(change_dome_list_to_teddy(coord[key]), "$ Verices definition")
             for x, y in zip([beam_elem, quad_elem], ["$ Beam definition", "$ Quad definition"]):
                 write_elems(x, y)
-            write_elems(dome_load_snow(coord[key], dome_name),"end\n$ Snow load\n+prog sofiload urs:5\nhead loads\nlc 3 titl snow", "end\n")
+            write_elems(dome_load_snow(coord[key], dome_name, snow),"end\n$ Snow load\n+prog sofiload urs:5\nhead loads\nlc 3 titl snow", "end\n")
             write_elems(dome_load_freeze(beam_elem, coord[key], dome_name), "$ Freeze load\n+prog sofiload urs:4\nhead loads\nlc 4 titl freeze", "end\n")
             write_elems(dome_load_wind(dome_name), "$ Wind load\n+prog sofiload urs:4\nhead loads\nlc 5 titl wind", "end\n")
             f.writelines(end_text(vert_force))
@@ -642,6 +649,9 @@ HEIGHT = 50         # m
 Steel = 235         # MPa
 Diameter = 108      # mm
 Thinness = 9.27     # mm
+snow = 1.2          # kN/m2
+freeze = 0.022      # kN/mb
+wind = 1.43         # kN/m2
 vert_force = 2188   # kN
 
 
