@@ -1,22 +1,21 @@
 # Domes-vertices
 Script that generates domes vertices with set radius and height.  
-Used library pandas, math, numpy, xlsxwriter  
-Used draft program AutoCAD 2D, Excel and SOFiSTiK Teddy.  
-I was working on it since October 2020. Have put some changes during the time.   
+Used library os, math, re 
+Used python 3.8 and SOFiSTiK Teddy 2020.
+I was working on it since October 2020 with a lot of version to solve the engineering problem.
 
-This is a big part of my masters thisis where I had to compare domes including their forces and displacements under the influence of external force
-First thing is to generate vertices in AutoCAD. I set units as meters and wanted to create vertices for domes which height and radius equals 1.0 meter. It is like a half of sphere R = 1.0m.  
-In AutoCAD due dataextraction command I exported only vertices to xls file.
-Using python I have created script that imports vertices from xls file, rotates them clockwise. 
-User can also decide about domes dimentions like height, radius because default dimentions are 1.0m. Also material, profile section and value of force can be set too.  
-The output program is SOFiSTiK Teddy which is script method to create constructions.  
-Python creates new excel with prepared three teddy scripts which are ready to be copy and paste to odb file (default teddy extension file).
+This is a big part of my masters thisis where I had to compare domes including their forces and displacements under the influence of external forces.  
+At the beginning my goal was to work with excel program and AutoCAD. However I figured out better way to find a solution.  
+Script is the only one utility to create domes files. Main destination was to get .dat files that are extention of SOFiSTiK teddy and generates domes constructions.  
+Using python I got many files with certain modified domes. User can input by hand important data like: height, material, cross sections and loads. In effect user gets ready to work teddy files ready to analyze.  
+Folders with files are created in the same place were script is saved.  
 
 The biggest adventage? You can create certain dome with specific height and radius. It saves a lot of time.  
 In my opinion script is more stable than other FEM programs like Autodesk ROBOT.  
 
 # To use sript
-Download script and xlsx files and paste to script excel paths
+Download script, set paremeters by your own and run it.  
+Modified files in right named folders will appear.  
 
 # Lamells dome gif
 ![Domes-vertices.gif](https://github.com/kamilego/Domes-vertices/blob/main/demo/Domes-vertices.gif)
